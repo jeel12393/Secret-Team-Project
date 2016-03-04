@@ -38,3 +38,5 @@ void initSeat(SeatInfo tempseats[10][16])
         }
     }
 }
+
+void sellSeats(SeatInfo seatstemp[10][16], )
