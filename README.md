@@ -16,4 +16,4 @@ load file
 check file  
 initialize seats < Reign  
 initialize patron info  
-phone # string to (xxx)xxx-xxxx format?? not sure if we need this  
+phone # int to (xxx)xxx-xxxx format?? not sure if we need this  
