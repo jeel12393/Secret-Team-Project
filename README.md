@@ -1,5 +1,5 @@
 Pretty self explanatory. Work on the source.cpp or on your own .cpp to be added to the source later.  
-I'm thinking we should use our own branches/files for early development, and only mess with the master when we're sure we should add our changes to it.  
+I'm thinking we should use our own branches/files for early development, and only mess with the master when we're sure we should add our changes to it. I'm not sure how it would work if two of us are editing the same source at the same time. Guess we'll find out :)  
 Needed Functions:  
 get input  
 show seating chart < Jeel  
