@@ -46,7 +46,11 @@ int main()
     PatronInfo currentPatronInfo[10][16];
     initSeat(seats);
     emptySeatChart();
-    SChart[6][12]='X';
+    // Make some dummy filled seats for testing
+    SChart[0][0]='X';
+    SChart[10][16]='X';
+    SChart[6][6]='X';
+    // Dummy seats ^^^^
     showSeatingchar();
    /* initSeat(seats);
 
