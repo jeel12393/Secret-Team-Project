@@ -187,4 +187,25 @@ void showSeatingchar()
 void SetColor(int value){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  value);
 }
+void showMenu()
+{
+    cout<<" A) Seating chart"<<endl;
+    cout<<" B) Selling ticket"<<endl;
+    cout<<" C) Search patron information"<<endl;
+    cout<<" D) Current total of revenue"<<endl;
+    cout<<" E) information about program"<<endl;
+    cout<<" F) Quit Program"<<endl;
+
+}
+void errorCheckin(char choice)
+{
+    while(choice <'A'||choice>'F'&choice<'a'||choice>'f')
+    {
+        cout<<"Opps Enter Wrong Choice"<<endl;
+        cout<<"Please Enter Correct choice"<<endl;
+        cin>>choice;
+        cin.clear();
+        cin.ignore();
+    }
+}
 
