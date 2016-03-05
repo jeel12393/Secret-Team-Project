@@ -1,6 +1,6 @@
 Pretty self explanatory. Be sure to keep your own backup of files until we're used to how github works.  
 Needed Functions:  
-get choice < Jeel
+get choice < Jeel  
 show seating chart < Jeel  
 show menu options < Jeel  
 initialize seating chart array < Reign  
