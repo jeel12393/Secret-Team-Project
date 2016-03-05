@@ -24,6 +24,7 @@ void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream&);
 int main()
 {
     SeatInfo seats[10][16];
+    PatronInfo currentPatronInfo[10][16];
     initSeat(seats);
     
     // Nick's code
@@ -38,6 +39,23 @@ int main()
     
     return 0;
 }
+
+void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
+{
+	int rownum, column;
+	cout << "Please enter the row for the seat that the patron is buying.\n";
+	cin >> row;
+	cout << "Please enter the column for the seat that the patron is buying.\n";
+	cin >> column;
+	cout << "Enter first name";
+	cin >> currentPatronInfo[row][column].firstName;
+	cout << "Last name\n";
+	cin >> currentPatronInfo[row][column].lastName;
+	cout << "Phone # in format nnnnnnnnnn"
+	cin >> currentPatronInfo[row][column].phoneNum;
+}
+
+
 
 void initSeat(SeatInfo tempseats[10][16])
 {
