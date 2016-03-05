@@ -48,7 +48,7 @@ int main()
     emptySeatChart();
     // Make some dummy filled seats for testing
     SChart[0][0]='X';
-    SChart[10][16]='X';
+    SChart[9][15]='X';
     SChart[6][6]='X';
     // Dummy seats ^^^^
     showSeatingchar();
@@ -93,8 +93,10 @@ void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 	int row, column;
 	cout << "Please enter the row for the seat that the patron is buying.\n";
 	cin >> row;
+	row=row-1;
 	cout << "Please enter the column for the seat that the patron is buying.\n";
 	cin >> column;
+	column=column-1;
 	cout << "Enter first name";
 	cin >> currentPatronInfo[row][column].firstName;
 	cout << "Last name\n";
@@ -145,8 +147,8 @@ void showSeatingchar()
 {
     const char TAKEN = 'X';//seats taken
 	const char EMPTY = 'O';//seats free
-	const int row=11;
-	const int col=17;
+	const int row=10;
+	const int col=16;
 	SetColor(14);
 	cout<<endl<<endl<<endl<<endl;
     cout<<setw(48)<<"HUNTINGTON PLAYHOUSE"<<endl;
@@ -154,7 +156,7 @@ void showSeatingchar()
 	cout<<setw(42)<<"Rear\n\n\n";
     cout <<setw(10)<< "            Seats " <<endl;
 	cout<<setw(10)<<"Row"<<setw(2)<<" ";
-	for(int k =1; k <col;k++)
+	for(int k =1; k <=col;k++)
 	{
 		cout<<setw(1)<<k<<" " ;
 		if(k<9)
@@ -171,7 +173,7 @@ void showSeatingchar()
     for(int i=9;i>-1;i--)
 	{
         cout << endl;
-        cout<<setw(10)<< i<<setw(1)<<"  ";
+        cout<<setw(10)<< i+1<<setw(1)<<"  ";
 		if(i<10)
         {
             cout<<"";
@@ -188,7 +190,7 @@ void showSeatingchar()
             {
                 cout<<" ";
             }
-            if(j==8)
+            if(j==7)
             {
                 cout<<"     ";
             }
@@ -241,5 +243,6 @@ void errorCheckin(char choice)
         cin.ignore();
     }
 }
+
 
 
