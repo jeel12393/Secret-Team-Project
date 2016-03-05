@@ -18,9 +18,9 @@ struct SeatInfo
 };
 // nick's code
 struct PatronInfo {
-	string id; 
-	string firstName; 
-	string lastName; 
+	string id;
+	string firstName;
+	string lastName;
 	int phoneNum;
 };
 // end of nick's code
@@ -30,25 +30,36 @@ void showSeatingchar();
 void SetColor(int);
 //jeel's above
 void initSeat(SeatInfo tempseats[10][16]);
-// fucntion prototypes 
+void updateInfoSingle(int rownum, int column);
+// fucntion prototypes
 void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream&);
+void emptySeatChart();
+
+static char SChart[10][16];
 
 int main()
 {
+
+
+
     SeatInfo seats[10][16];
     PatronInfo currentPatronInfo[10][16];
     initSeat(seats);
-    
+    emptySeatChart();
+    SChart[6][12]='X';
+    showSeatingchar();
+   /* initSeat(seats);
+
     // Nick's code
     fstream dataFile;
 	PatronInfo currentPatronInfo[10][16];
 	// grab current patron information from file
 	// and store data into passed array
 	// will be seats array
-	getSeatingInfo(currentPatronInfo, /*seats,*/ dataFile)
-	// nicks code end
-    
-    
+	getSeatingInfo(currentPatronInfo, /*seats,*/// dataFile)
+	// nicks code end */
+
+
     return 0;
 }
 
@@ -75,7 +86,7 @@ void initSeat(SeatInfo tempseats[10][16])
 
 void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 {
-	int rownum, column;
+	int row, column;
 	cout << "Please enter the row for the seat that the patron is buying.\n";
 	cin >> row;
 	cout << "Please enter the column for the seat that the patron is buying.\n";
@@ -84,14 +95,32 @@ void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 	cin >> currentPatronInfo[row][column].firstName;
 	cout << "Last name\n";
 	cin >> currentPatronInfo[row][column].lastName;
-	cout << "Phone # in format nnnnnnnnnn"
+	cout << "Phone # in format nnnnnnnnnn";
 	cin >> currentPatronInfo[row][column].phoneNum;
-}   
+}
+
+void emptySeatChart()
+{
+    for(int i=0; i<10; i++)
+    {
+        for(int j=0; j<16; j++)
+        {
+            SChart[i][j]='O';
+        }
+    }
+}
+
+void updateInfoSingle(SeatInfo seats[10][16], int rownum, int column)
+{
+    seats[rownum][column].sold=true;
+    SChart[rownum][column]='X';
+}
 
 // nick's code
-// search 
+// search
+/*
 void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream &inputFile) {
-	// open Patron file 
+	// open Patron file
 	inputFile.open("PatronInfo", ios::in);
 	if (inputFile.fail()) {
 		cout << "Error opening file" << endl;
@@ -99,13 +128,13 @@ void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream &inputFile) {
 	}
 	else
 		while (inputFile.eof()) {
-			// get col and row from seatfile 
-			// use to search id strings in patron 
-			// file 
-			
+			// get col and row from seatfile
+			// use to search id strings in patron
+			// file
+
 		}
-	}
-// end of nick's code 
+	}*/
+// end of nick's code
 //jeel's code
 
 void showSeatingchar()
@@ -121,7 +150,7 @@ void showSeatingchar()
 	cout<<setw(42)<<"Rear\n\n\n";
     cout <<setw(10)<< "            Seats " <<endl;
 	cout<<setw(10)<<"Row"<<setw(2)<<" ";
-	for(int k =1; k <17;k++)
+	for(int k =1; k <col;k++)
 	{
 		cout<<setw(1)<<k<<" " ;
 		if(k<9)
@@ -135,18 +164,18 @@ void showSeatingchar()
 	}
     cout<<endl;
 	cout<<setw(40)<< "Aisle"<<endl;
-    for(int i=10;i>0;i--)
+    for(int i=9;i>-1;i--)
 	{
         cout << endl;
         cout<<setw(10)<< i<<setw(1)<<"  ";
 		if(i<10)
         {
             cout<<"";
-        }       // char seatingChart[10][16]; O X
-        for(int j=1;j<17;j++)
+        }
+        for(int j=0;j<col;j++)
 		{
 		 //   cout<<setw(1)<< EMPTY<<" ";
-		 cout << setw(1) << seatingchart[i][j];
+		 cout << setw(1) << SChart[i][j] << " ";
             if(j<9)
             {
                 cout<<" ";
@@ -208,4 +237,5 @@ void errorCheckin(char choice)
         cin.ignore();
     }
 }
+
 
