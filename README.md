@@ -3,7 +3,8 @@ Needed Functions:
 get choice < Jeel
 show seating chart < Jeel  
 show menu options < Jeel  
-update seating chart  
+initialize seating chart array < Reign  
+update seating chart array < Reign  
 get patron info  
 update patron info  
 show patron info  
