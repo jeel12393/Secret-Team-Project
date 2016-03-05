@@ -5,6 +5,10 @@ show seating chart < Jeel
 show menu options < Jeel  
 initialize seating chart array < Reign  
 update seating chart array < Reign  
+initialize seats < Reign  
+  
+  
+I'm not sure which of the below functions we have/need, please check the source code and contact each other before writing  
 get patron info  
 update patron info  
 show patron info  
@@ -15,6 +19,5 @@ credits
 save file  
 load file  
 check file  
-initialize seats < Reign  
 initialize patron info  
 phone # int to (xxx)xxx-xxxx format?? not sure if we need this  
