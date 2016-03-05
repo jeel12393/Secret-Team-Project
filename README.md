@@ -1,15 +1,15 @@
 Pretty self explanatory. Be sure to keep your own backup of files until we're used to how github works.  
 Needed Functions:  
-get input  
+get choice < Jeel
 show seating chart < Jeel  
-show menu options  
+show menu options < Jeel  
 update seating chart  
 get patron info  
 update patron info  
 show patron info  
 search patron info  
 ticket revenue  
-seats remainig  
+seats remaining  
 credits  
 save file  
 load file  
