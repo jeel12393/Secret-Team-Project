@@ -107,11 +107,14 @@ void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 
 void emptySeatChart()
 {
+    // empyt char array 
     for(int i=0; i<10; i++)
     {
         for(int j=0; j<16; j++)
         {
             SChart[i][j]='O';
+            // reset/empty seats array
+            // set seats.sold = 0;
         }
     }
 }
@@ -122,25 +125,6 @@ void updateInfoSingle(SeatInfo seats[10][16], int rownum, int column)
     SChart[rownum][column]='X';
 }
 
-// nick's code
-// search
-/*
-void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream &inputFile) {
-	// open Patron file
-	inputFile.open("PatronInfo", ios::in);
-	if (inputFile.fail()) {
-		cout << "Error opening file" << endl;
-		inputFile.close();
-	}
-	else
-		while (inputFile.eof()) {
-			// get col and row from seatfile
-			// use to search id strings in patron
-			// file
-
-		}
-	}*/
-// end of nick's code
 //jeel's code
 
 void showSeatingchar()
