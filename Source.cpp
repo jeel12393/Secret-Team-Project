@@ -24,9 +24,9 @@ struct SeatInfo
 };
 struct PatronInfo { // Nick
 	char id[ID_SIZE];
-	char firstName[ID_SIZE];
-	char lastName[ID_SIZE];
-    char phoneNum[ID_SIZE];
+	char firstName[FNAME_SIZE];
+	char lastName[LNAME_SIZE];
+	char phoneNum[DIGITS];
 };
 
 // Function Prototype
