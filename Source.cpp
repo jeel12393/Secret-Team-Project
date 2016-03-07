@@ -253,6 +253,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	seatFile.open(fileName.c_str(), ios::out | ios::binary);
 
 	// fill some elements with info
+	// can be deleted
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			seats[i][j].row = i;
@@ -271,7 +272,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	}
 	// fill a few seat elements with id info
 	bool status;
-
+        // this for loop can be deleted
 	for (int rows = 0; rows < 1; rows++) {
 		for (int cols = 0; cols < 3; cols++) {
 			cout << "Row " << rows << " seat " << cols << " status?" << endl;
@@ -321,6 +322,7 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 	seatFile.close();
 
 	// test read data
+	// can be deleted!!
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			cout << seats[i][j].row << endl;
