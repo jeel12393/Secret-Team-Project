@@ -10,20 +10,25 @@
 
 using namespace std;
 
+// Constants
+// Array sizes
+const int ID_SIZE = 8, FNAME_SIZE = 25, LNAME_SIZE = 25, DIGITS = 10,
+   		ROWS = 10, COLS = 16;
+
 struct SeatInfo
 {
     int row, col, price;
     bool sold;
     string IDS;
 };
-// nick's code
-struct PatronInfo {
+struct PatronInfo { // Nick
 	string id;
 	string firstName;
 	string lastName;
 	int phoneNum;
 };
-// end of nick's code
+
+// Function Prototype
 void showMenu();
 void errorCheckin(char);
 void showSeatingchar();
@@ -32,16 +37,24 @@ void SetColor(int);
 void initSeat(SeatInfo tempseats[10][16]);
 void updateInfoSingle(int rownum, int column);
 // fucntion prototypes
-void getSeatingInfo(PatronInfo currentPatronInfo[10][16], fstream&);
 void emptySeatChart();
+// Nick's functions
+void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
+void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
+void savePatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream &);
+void getPatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream&);
 
 static char SChart[10][16];
 
 int main()
 {
-
-
-
+    // file objects
+    fstream seatFile;
+    fstream patronFile;
+    // 2-d arrays 
+    SeatInfo seats[ROWS][COLS];
+    PatronInfo currPatronInfo[ROWS][COLS]; // new code	
+    
     SeatInfo seats[10][16];
     PatronInfo currentPatronInfo[10][16];
     initSeat(seats);
@@ -52,16 +65,7 @@ int main()
     SChart[6][6]='X';
     // Dummy seats ^^^^
     showSeatingchar();
-   /* initSeat(seats);
-
-    // Nick's code
-    fstream dataFile;
-	PatronInfo currentPatronInfo[10][16];
-	// grab current patron information from file
-	// and store data into passed array
-	// will be seats array
-	getSeatingInfo(currentPatronInfo, /*seats,*/// dataFile)
-	// nicks code end */
+   // initSeat(seats);
 
 
     return 0;
@@ -228,5 +232,145 @@ void errorCheckin(char choice)
     }
 }
 
+
+//*********************************************************
+//    Definition of Function saveSeatFile                 *
+//       This function will write each struct element     *
+//       to binary file seatsInfoFile.dat                 *
+//*********************************************************
+
+void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
+	string fileName = "seatsInfoFile.dat";
+	seatFile.open(fileName.c_str(), ios::out | ios::binary);
+
+	// fill some elements with info
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			seats[i][j].row = i;
+			seats[i][j].col = j; 
+			if (i >= 0 && i <= 1) {
+				seats[i][j].price = 25;
+			}
+			else if (i >= 2 && i <= 5) {
+				seats[i][j].price = 35;
+			}
+			else if (i >= 6 && i <= 9) {
+				seats[i][j].price = 50;
+			}
+			seats[i][j].sold = 0;
+		}
+	}
+	// fill a few seat elements with id info
+	bool status;
+
+	for (int rows = 0; rows < 1; rows++) {
+		for (int cols = 0; cols < 3; cols++) {
+			cout << "Row " << rows << " seat " << cols << " status?" << endl;
+			cin >> status;
+			cin.ignore();
+			cout << endl;
+			cout << "what is the row " << rows << " seat " << cols << endl;
+			cout << "ID? " << endl;
+			cin.getline(seats[rows][cols].IDS, ID_SIZE);
+			cout << endl << endl;
+		}
+	}
+
+	// write each stuct element to binary file 
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			seatFile.write(reinterpret_cast<char *>(&seats[i][j]), sizeof(seats[i][j]));
+		}
+	}
+	//close file
+	seatFile.close();
+
+}
+
+//*********************************************************
+//   Definition of function getSeatingInfo, this function *
+//      will read a binary file containing records of     *
+//      seating information and store them into an array  *
+//      of structures.                                    *
+//*********************************************************
+
+// search and store patron info from file into array
+void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
+	// open file for reading
+	string fileName = "seatsInfoFile.dat";
+	seatFile.open(fileName.c_str(), ios::in | ios::binary);
+	// read each records and store into seat array
+	while (!seatFile.eof()) {
+		for (int i = 0; i < ROWS; i++) {
+			for (int j = 0; j < COLS; j++) {
+				seatFile.read(reinterpret_cast<char *>(&seats[i][j]),
+					sizeof(seats[i][j]));
+			}
+		}
+	}
+	//close file
+	seatFile.close();
+
+	// test read data
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			cout << seats[i][j].row << endl;
+			cout << seats[i][j].col << endl;
+			cout << seats[i][j].price << endl;
+			cout << seats[i][j].sold << endl;
+			cout << seats[i][j].IDS << endl;
+			cin.get();
+			cout << endl << endl << endl;
+		}
+	}
+	system("pause");
+}
+
+//*********************************************************
+//    Definition of Function savePatrongFile              *
+//       This function will write each struct element     *
+//       to binary file PatronInfo.dat                    *
+//*********************************************************
+
+void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream & patronFile) {
+	// open file to write to
+	string fileName = "PatronInfo.dat";
+	patronFile.open(fileName.c_str(), ios::out | ios::binary);
+
+	// write each stuct element to binary file 
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			patronFile.write(reinterpret_cast<char *>(&currPatronInfo[i][j]), sizeof(currPatronInfo[i][j]));
+		}
+	}
+	//close file
+	patronFile.close();
+
+}
+
+//*********************************************************
+//   Definition of function getPatronInfo, this function  *
+//     will read a binary file containing records of      *
+//     Patron information and store them into an array of *
+//     structures.                                        *
+//*********************************************************
+
+// search and store patron info from file into array
+void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream& patronFile) {
+	// open Patron file 
+	string fileName = "PatronInfo.dat";
+	patronFile.open(fileName.c_str(), ios::in | ios::binary);
+
+	// read in each struct record
+	while (!patronFile.eof()) {
+		for (int i = 0; i < ROWS; i++) {
+			for (int j = 0; j < COLS; j++) {
+				patronFile.read(reinterpret_cast<char *>(&currPatronInfo[i][j]), sizeof(currPatronInfo[i][j]));
+			}
+		}
+	}
+	// close file
+	patronFile.close();
+}
 
 
