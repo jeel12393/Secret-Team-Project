@@ -47,7 +47,7 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-void getNumbers(int thedata, string message, int lowerbound, int upperbound);
+void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
 
 static char SChart[ROWS][COLS];
 
@@ -98,12 +98,12 @@ void initSeat(SeatInfo tempseats[10][16])
 Function designed to return an integer between an upper bound and lower bound
 Good for getting and validating input data
 */
-void getNumbers(int thedata, string message, int lowerbound, int upperbound)
+void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 {
-    char test[50];
+    char test[1000];
     while(thedata>upperbound||thedata<lowerbound)
     {
-    cout << message << endl;
+    cout << message;
     cin.getline(test,INT_MAX);
     thedata=atoi(test);
     cin.clear();
@@ -112,18 +112,17 @@ void getNumbers(int thedata, string message, int lowerbound, int upperbound)
 
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-	int row, column;
-	getNumbers(row,"Enter the row for the seat the patron is buying.",1,10);
+	int row=-1, column=-1, phnum=-1;
+	getNumbers(row,"Enter the row for the seat the patron is buying.\n",1,10);
 	row=row-1;
-	getNumbers(column,"Enter the column for the seat that the patron is buying.",1,16);
+	getNumbers(column,"Enter the column for the seat that the patron is buying.\n",1,16);
 	column=column-1;
-	cout << "Enter first name";
+	cout << "Enter first name\n";
 	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
-//	cout << "Last name\n";
-//	cin >> currPatronInfo[row][column].lastName;
-	//cout << "Phone # in format nnnnnnnnnn";
-	//cin >> currPatronInfo[row][column].phoneNum;
-	updateInfoSingle(seatstemp, row, column);
+	cout << "Last name\n";
+	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
+	cout << "Phone # in format nnnnnnnnnn\n";
+	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
 }
 
 void emptySeatChart()
