@@ -29,23 +29,27 @@ struct PatronInfo { // Nick
 	char phoneNum[DIGITS];
 };
 
-// Function Prototype
+// Function Prototypes
+// Jeel's
 void showMenu();
 void errorCheckin(char);
 void showSeatingchar();
 void SetColor(int);
-void initSeat(SeatInfo tempseats[ROWS][COLS]);
-void updateInfoSingle(SeatInfo seats[ROWS][COLS], int rownum, int column);
-void emptySeatChart(); // maybe delete
+
+// Nick's
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
 void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
+
+// Reign's
+void initSeat(SeatInfo tempseats[ROWS][COLS]);
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
 void menuChoice(char &choice);
+void updateSeatChart(SeatInfo seats[ROWS][COLS]);
 
 static char SChart[ROWS][COLS];
 
@@ -56,14 +60,18 @@ int main()
     fstream patronFile;
     // 2-d arrays
     SeatInfo seats[ROWS][COLS];
-    PatronInfo currPatronInfo[ROWS][COLS]; // new code
+    PatronInfo currPatronInfo[ROWS][COLS];
     char choice;
-
     initSeat(seats);
-    emptySeatChart();
+    emptySeatInfo(seats,currPatronInfo);
+
+    getPatronInfo(currPatronInfo,patronFile);
+    getSeatInfo(seats,seatFile);
+
     while(choice!='H')
     {
     choice='X';
+    updateSeatChart(seats);
     showSeatingchar();
     showMenu();
     menuChoice(choice);
@@ -72,16 +80,24 @@ int main()
     {
     case 'A':
     sellSeat(seats, currPatronInfo);
+    break;
     case 'B':
     // call group sale
     case 'C':
     // call patron info search
     case 'D':
-    //total revenue
+    //total revenue/seats remaining
     case 'E':
     //reset a seats info
     case 'F':
-    // Clear all information
+    cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter Y or y if you are sure.";
+    cin.clear();
+    fflush(stdin);
+    cin >> choice;
+    if(choice=='Y'||choice=='y')
+    emptySeatInfo(seats,currPatronInfo);
+    else
+    break;
     case 'G':
     //call credits
     case 'H':
@@ -91,10 +107,14 @@ int main()
     }
 
     saveSeatInfo(seats, seatFile);
+    savePatronInfo(currPatronInfo, patronFile);
 
     return 0;
 }
 
+/*
+function to initialize the seats array for prices and col/row numbers
+*/
 void initSeat(SeatInfo tempseats[10][16])
 {
     for(int count=0;count<10;count++)
@@ -111,7 +131,6 @@ void initSeat(SeatInfo tempseats[10][16])
             tempseats[count][i].row=count+1;
             tempseats[count][i].sold=false;
             resetCharArray(tempseats[count][i].IDS, ID_SIZE);
-          //  cout << tempseats[count][i].row << "  " << tempseats[count][i].col << "  " << tempseats[count][i].price << "  " << tempseats[count][i].sold << endl;
         }
     }
 }
@@ -135,6 +154,9 @@ void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
     }
 }
 
+/*
+function to sell a single seat to the user
+*/
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
 	int row=-1, column=-1, phnum=-1;
@@ -148,28 +170,25 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
 	cout << "Phone # in format nnnnnnnnnn\n";
 	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
-	updateInfoSingle(seatstemp, row, column);
+	seatstemp[row][column].sold=true;
 }
 
-void emptySeatChart()
+/*
+Updates the seating chart
+based on the values in seats[][].sold
+*/
+void updateSeatChart(SeatInfo seats[ROWS][COLS])
 {
-    // empyt char array
-    for(int i=0; i<10; i++)
+    for(int i=0 ;i<ROWS ;i++)
     {
-        for(int j=0; j<16; j++)
+        for(int j=0 ;j<COLS; j++)
         {
-            SChart[i][j]='O';
-            // reset/empty seats array
-            // set seats.sold = 0;
+            if (seats[i][j].sold==true)
+                SChart[i][j]='X';
+            else
+                SChart[i][j]='O';
         }
     }
-}
-
-
-void updateInfoSingle(SeatInfo seats[10][16], int rownum, int column)
-{
-    seats[rownum][column].sold=true;
-    SChart[rownum][column]='X';
 }
 
 //jeel's code
@@ -254,6 +273,9 @@ void SetColor(int value){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  value);
 }
 
+/*
+function to get user choice at main menu
+*/
 void menuChoice(char &choice)
 {
     cin.clear();
