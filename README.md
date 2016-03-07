@@ -11,18 +11,19 @@ reset seat chart
 error checking  
 
 Reign:  
-update seating chart      
-get menu choice  
-sell group of tickets   
+update seating chart  
+initialize seats  DONE
+get menu choice  DONE
+sell group of tickets  
 check file  
-reset single seat info AKA refund 
+reset single seat info AKA refund  
 
 Jeel:  
-show seating chart  
-show menu options  
+show seating chart  DONE
+show menu options  DONE
 total revenue  
 seats remaining  
 credits  
-phone # display formatting ?  
 show patron info  
 search patron info  
+phone # display formatting ?  
