@@ -17,13 +17,13 @@ initialize seats array DONE
 get menu choice DONE  
 sell group of tickets  
 reset single seat info AKA refund  
+credits  
 
 Jeel:  
 show seating chart  DONE  
 show menu options  DONE  
 total revenue  
 seats remaining  
-credits  
 show patron info  
 search patron info  
 phone # display formatting ?  
