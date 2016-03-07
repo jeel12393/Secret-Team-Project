@@ -12,14 +12,14 @@ using namespace std;
 
 // Constants
 // Array sizes
-const int ID_SIZE = 8, FNAME_SIZE = 25, LNAME_SIZE = 25, DIGITS = 10,
+const int ID_SIZE = 7, FNAME_SIZE = 25, LNAME_SIZE = 25, DIGITS = 10,
    		ROWS = 10, COLS = 16;
 
 struct SeatInfo
 {
     int row, col, price;
     bool sold;
-    string IDS;
+    string IDS; // change to char IDS[ID_SIZE];
 };
 struct PatronInfo { // Nick
 	string id;
@@ -37,12 +37,14 @@ void SetColor(int);
 void initSeat(SeatInfo tempseats[10][16]);
 void updateInfoSingle(int rownum, int column);
 // fucntion prototypes
-void emptySeatChart();
+void emptySeatChart(); // maybe delete
 // Nick's functions
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream &);
 void getPatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream&);
+void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
+void resetCharArray(char[], int); 
 
 static char SChart[10][16];
 
@@ -109,6 +111,7 @@ void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 	cin >> currentPatronInfo[row][column].phoneNum;
 }
 
+/*
 void emptySeatChart()
 {
     // empyt char array 
@@ -122,6 +125,7 @@ void emptySeatChart()
         }
     }
 }
+*/
 
 void updateInfoSingle(SeatInfo seats[10][16], int rownum, int column)
 {
@@ -371,6 +375,43 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream& patronFile) {
 	}
 	// close file
 	patronFile.close();
+}
+
+//**********************************************************
+//     Definition of Function emptySeatInfo                *
+//        This function will reset the information of the  *
+//        seats array and curPatronInfo array. This Func-  *
+//        tion will also call the resetCharArray to assign *
+//        x to each element in a char array.               *
+//**********************************************************
+
+void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			// empty XO char array
+			SChart[i][j]='O';
+			// reset info in seats array
+			seats[i][j].sold = 0;
+			resetCharArray(seats[i][j].IDS, ID_SIZE);
+			// reset info in patrons array
+			resetCharArray(currPatronInfo[i][j].id, ID_SIZE);
+			resetCharArray(currPatronInfo[i][j].firstName, FNAME_SIZE);
+			resetCharArray(currPatronInfo[i][j].lastName, LNAME_SIZE);
+			resetCharArray(currPatronInfo[i][j].phoneNum, DIGITS);
+		}
+	}
+}
+
+//**********************************************************
+//     Definition of Function resetCharArray               *
+//        This function accepts a char array and integer   *
+//        parameter. The function will assign x to each    *
+//        element in the array.                            *
+//**********************************************************
+
+void resetCharArray(char cString[], int SIZE) {
+	for (int index = 0; index < SIZE; index++)
+		cString[index] = 'x';
 }
 
 
