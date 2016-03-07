@@ -34,12 +34,9 @@ void showMenu();
 void errorCheckin(char);
 void showSeatingchar();
 void SetColor(int);
-//jeel's above
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
 void updateInfoSingle(SeatInfo seats[ROWS][COLS], int rownum, int column);
-// fucntion prototypes
 void emptySeatChart(); // maybe delete
-// Nick's functions
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
@@ -48,6 +45,7 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 void resetCharArray(char[], int);
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
+void menuChoice(char &choice);
 
 static char SChart[ROWS][COLS];
 
@@ -59,14 +57,39 @@ int main()
     // 2-d arrays
     SeatInfo seats[ROWS][COLS];
     PatronInfo currPatronInfo[ROWS][COLS]; // new code
+    char choice;
 
     initSeat(seats);
     emptySeatChart();
-    for(int boom=0; boom<2; boom++)
+    while(choice!='H')
     {
+    choice='X';
     showSeatingchar();
+    showMenu();
+    menuChoice(choice);
+    choice=toupper(choice);
+    switch(choice)
+    {
+    case 'A':
     sellSeat(seats, currPatronInfo);
+    case 'B':
+    // call group sale
+    case 'C':
+    // call patron info search
+    case 'D':
+    //total revenue
+    case 'E':
+    //reset a seats info
+    case 'F':
+    // Clear all information
+    case 'G':
+    //call credits
+    case 'H':
+    break;
     }
+    system("CLS");
+    }
+
     saveSeatInfo(seats, seatFile);
 
     return 0;
@@ -93,20 +116,22 @@ void initSeat(SeatInfo tempseats[10][16])
     }
 }
 
-
 /*
 Function designed to return an integer between an upper bound and lower bound
 Good for getting and validating input data
 */
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 {
-    char test[1000];
+    cin.clear();
+    fflush(stdin);
+    char test[999];
     while(thedata>upperbound||thedata<lowerbound)
     {
     cout << message;
     cin.getline(test,INT_MAX);
     thedata=atoi(test);
     cin.clear();
+    fflush(stdin);
     }
 }
 
@@ -123,6 +148,7 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
 	cout << "Phone # in format nnnnnnnnnn\n";
 	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
+	updateInfoSingle(seatstemp, row, column);
 }
 
 void emptySeatChart()
@@ -227,16 +253,36 @@ void showSeatingchar()
 void SetColor(int value){
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  value);
 }
+
+void menuChoice(char &choice)
+{
+    cin.clear();
+    fflush(stdin);
+    cin >> choice;
+    if(choice=='h'||choice=='H')
+    {
+    cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
+    cin >> choice;
+    if(choice=='y'||choice=='Y')
+        choice='H';
+    else
+        choice='X';
+    }
+}
+
 void showMenu()
 {
-    cout<<" A) Seating chart"<<endl;
-    cout<<" B) Selling ticket"<<endl;
-    cout<<" C) Search patron information"<<endl;
-    cout<<" D) Current total of revenue"<<endl;
-    cout<<" E) information about program"<<endl;
-    cout<<" F) Quit Program"<<endl;
-
+    cout<<" A) Sell a ticket";
+    cout<<setw(45)<<" E) Refund a ticket"<<endl;
+    cout<<" B) Sell a group of tickets";
+    cout<<setw(42)<<" F) Delete all information"<<endl;
+    cout<<" C) Search patron information";
+    cout<<setw(37)<<" G) Credits for program"<<endl;
+    cout<<" D) Total revenue and seats remaining";
+    cout<<setw(22)<<" H) Quit Program"<<endl;
 }
+
+
 void errorCheckin(char choice)
 {
     while(choice <'A'||choice>'F'&choice<'a'||choice>'f')
@@ -259,39 +305,6 @@ void errorCheckin(char choice)
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	string fileName = "seatsInfoFile.dat";
 	seatFile.open(fileName.c_str(), ios::out | ios::binary);
-
-	/* fill some elements with info
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
-			seats[i][j].row = i;
-			seats[i][j].col = j;
-			if (i >= 0 && i <= 1) {
-				seats[i][j].price = 25;
-			}
-			else if (i >= 2 && i <= 5) {
-				seats[i][j].price = 35;
-			}
-			else if (i >= 6 && i <= 9) {
-				seats[i][j].price = 50;
-			}
-			seats[i][j].sold = 0;
-		}
-	}
-	// fill a few seat elements with id info*/
-	bool status;
-/*
-	for (int rows = 0; rows < 1; rows++) {
-		for (int cols = 0; cols < 3; cols++) {
-			cout << "Row " << rows << " seat " << cols << " status?" << endl;
-			cin >> status;
-			cin.ignore();
-			cout << endl;
-			cout << "what is the row " << rows << " seat " << cols << endl;
-			cout << "ID? " << endl;
-			cin.getline(seats[rows][cols].IDS, ID_SIZE);
-			cout << endl << endl;
-		}
-	}*/
 
 	// write each stuct element to binary file
 	for (int i = 0; i < ROWS; i++) {
@@ -328,18 +341,6 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 	//close file
 	seatFile.close();
 
-	/*// test read data
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
-			cout << seats[i][j].row << endl;
-			cout << seats[i][j].col << endl;
-			cout << seats[i][j].price << endl;
-			cout << seats[i][j].sold << endl;
-			cout << seats[i][j].IDS << endl;
-			cin.get();
-			cout << endl << endl << endl;
-		}
-	}*/
 	system("pause");
 }
 
