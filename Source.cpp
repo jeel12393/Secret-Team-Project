@@ -23,10 +23,10 @@ struct SeatInfo
     string IDS; // change to char IDS[ID_SIZE];
 };
 struct PatronInfo { // Nick
-	string id;
-	string firstName;
-	string lastName;
-	int phoneNum;
+	char id[ID_SIZE];
+	char firstName[FNAME_SIZE];
+	char lastName[LNAME_SIZE];
+	char phoneNum[DIGITS];
 };
 
 // Function Prototype
