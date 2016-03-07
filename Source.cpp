@@ -42,11 +42,11 @@ void emptySeatChart(); // maybe delete
 // Nick's functions
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
-void savePatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream &);
-void getPatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream&);
+void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
+void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
-void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS][COLS]);
+void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void getNumbers(int thedata, string message, int lowerbound, int upperbound);
 
 static char SChart[ROWS][COLS];
@@ -110,7 +110,7 @@ void getNumbers(int thedata, string message, int lowerbound, int upperbound)
     }
 }
 
-void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS][COLS])
+void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
 	int row, column;
 	getNumbers(row,"Enter the row for the seat the patron is buying.",1,10);
@@ -118,11 +118,11 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS]
 	getNumbers(column,"Enter the column for the seat that the patron is buying.",1,16);
 	column=column-1;
 	cout << "Enter first name";
-	cin.getline(currentPatronInfo[row][column].firstName,FNAME_SIZE);
-	cout << "Last name\n";
-	cin >> currentPatronInfo[row][column].lastName;
-	cout << "Phone # in format nnnnnnnnnn";
-	cin >> currentPatronInfo[row][column].phoneNum;
+	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
+//	cout << "Last name\n";
+//	cin >> currPatronInfo[row][column].lastName;
+	//cout << "Phone # in format nnnnnnnnnn";
+	//cin >> currPatronInfo[row][column].phoneNum;
 	updateInfoSingle(seatstemp, row, column);
 }
 
