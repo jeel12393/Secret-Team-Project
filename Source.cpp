@@ -47,8 +47,9 @@ void getPatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS][COLS]);
+void getNumbers(int thedata, string message, int lowerbound, int upperbound);
 
-static char SChart[10][16];
+static char SChart[ROWS][COLS];
 
 int main()
 {
@@ -61,18 +62,12 @@ int main()
 
     initSeat(seats);
     emptySeatChart();
-    // Make some dummy filled seats for testing
-  //  SChart[0][0]='X';
-  //  SChart[9][15]='X';
-  //  SChart[6][6]='X';
-    // Dummy seats ^^^^
-    for(int i=0; i<10; i++)
+    for(int boom=0; boom<2; boom++)
     {
     showSeatingchar();
     sellSeat(seats, currPatronInfo);
     }
-   // initSeat(seats);
-
+    saveSeatInfo(seats, seatFile);
 
     return 0;
 }
@@ -98,24 +93,38 @@ void initSeat(SeatInfo tempseats[10][16])
     }
 }
 
-void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
+
+/*
+Function designed to return an integer between an upper bound and lower bound
+Good for getting and validating input data
+*/
+void getNumbers(int thedata, string message, int lowerbound, int upperbound)
+{
+    char test[50];
+    while(thedata>upperbound||thedata<lowerbound)
+    {
+    cout << message << endl;
+    cin.getline(test,INT_MAX);
+    thedata=atoi(test);
+    cin.clear();
+    }
+}
+
+void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS][COLS])
 {
 	int row, column;
-	cout << "Please enter the row for the seat that the patron is buying.\n";
-	cin >> row;
+	getNumbers(row,"Enter the row for the seat the patron is buying.",1,10);
 	row=row-1;
-	cout << "Please enter the column for the seat that the patron is buying.\n";
-	cin >> column;
+	getNumbers(column,"Enter the column for the seat that the patron is buying.",1,16);
 	column=column-1;
 	cout << "Enter first name";
-	cin >> currentPatronInfo[row][column].firstName;
+	cin.getline(currentPatronInfo[row][column].firstName,FNAME_SIZE);
 	cout << "Last name\n";
 	cin >> currentPatronInfo[row][column].lastName;
 	cout << "Phone # in format nnnnnnnnnn";
 	cin >> currentPatronInfo[row][column].phoneNum;
 	updateInfoSingle(seatstemp, row, column);
 }
-
 
 void emptySeatChart()
 {
@@ -252,8 +261,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	string fileName = "seatsInfoFile.dat";
 	seatFile.open(fileName.c_str(), ios::out | ios::binary);
 
-	// fill some elements with info
-	// can be deleted
+	/* fill some elements with info
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			seats[i][j].row = i;
@@ -270,9 +278,9 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 			seats[i][j].sold = 0;
 		}
 	}
-	// fill a few seat elements with id info
+	// fill a few seat elements with id info*/
 	bool status;
-        // this for loop can be deleted
+/*
 	for (int rows = 0; rows < 1; rows++) {
 		for (int cols = 0; cols < 3; cols++) {
 			cout << "Row " << rows << " seat " << cols << " status?" << endl;
@@ -284,7 +292,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 			cin.getline(seats[rows][cols].IDS, ID_SIZE);
 			cout << endl << endl;
 		}
-	}
+	}*/
 
 	// write each stuct element to binary file
 	for (int i = 0; i < ROWS; i++) {
@@ -321,8 +329,7 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 	//close file
 	seatFile.close();
 
-	// test read data
-	// can be deleted!!
+	/*// test read data
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			cout << seats[i][j].row << endl;
@@ -333,7 +340,7 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 			cin.get();
 			cout << endl << endl << endl;
 		}
-	}
+	}*/
 	system("pause");
 }
 
@@ -420,4 +427,3 @@ void resetCharArray(char cString[], int SIZE) {
 	for (int index = 0; index < SIZE; index++)
 		cString[index] = 'x';
 }
-
