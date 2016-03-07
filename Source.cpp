@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <fstream>
 #include <sstream>
 #include <string>
 #include <cstring>
@@ -8,6 +7,7 @@
 #include <cstdio>
 #include <conio.h>
 #include <windows.h>
+#include <fstream>
 
 using namespace std;
 
@@ -20,13 +20,13 @@ struct SeatInfo
 {
     int row, col, price;
     bool sold;
-    string IDS; // change to char IDS[ID_SIZE];
+    char IDS[ID_SIZE]; // change to char IDS[ID_SIZE];
 };
 struct PatronInfo { // Nick
 	char id[ID_SIZE];
-	char firstName[FNAME_SIZE];
-	char lastName[LNAME_SIZE];
-	char phoneNum[DIGITS];
+	char firstName[ID_SIZE];
+	char lastName[ID_SIZE];
+    char phoneNum[ID_SIZE];
 };
 
 // Function Prototype
@@ -35,8 +35,8 @@ void errorCheckin(char);
 void showSeatingchar();
 void SetColor(int);
 //jeel's above
-void initSeat(SeatInfo tempseats[10][16]);
-void updateInfoSingle(int rownum, int column);
+void initSeat(SeatInfo tempseats[ROWS][COLS]);
+void updateInfoSingle(SeatInfo seats[ROWS][COLS], int rownum, int column);
 // fucntion prototypes
 void emptySeatChart(); // maybe delete
 // Nick's functions
@@ -45,7 +45,8 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream &);
 void getPatronInfo(PatronInfo currentPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-void resetCharArray(char[], int); 
+void resetCharArray(char[], int);
+void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currentPatronInfo[ROWS][COLS]);
 
 static char SChart[10][16];
 
@@ -54,20 +55,22 @@ int main()
     // file objects
     fstream seatFile;
     fstream patronFile;
-    // 2-d arrays 
+    // 2-d arrays
     SeatInfo seats[ROWS][COLS];
-    PatronInfo currPatronInfo[ROWS][COLS]; // new code	
-    
-    SeatInfo seats[10][16];
-    PatronInfo currentPatronInfo[10][16];
+    PatronInfo currPatronInfo[ROWS][COLS]; // new code
+
     initSeat(seats);
     emptySeatChart();
     // Make some dummy filled seats for testing
-    SChart[0][0]='X';
-    SChart[9][15]='X';
-    SChart[6][6]='X';
+  //  SChart[0][0]='X';
+  //  SChart[9][15]='X';
+  //  SChart[6][6]='X';
     // Dummy seats ^^^^
+    for(int i=0; i<10; i++)
+    {
     showSeatingchar();
+    sellSeat(seats, currPatronInfo);
+    }
    // initSeat(seats);
 
 
@@ -89,8 +92,8 @@ void initSeat(SeatInfo tempseats[10][16])
             tempseats[count][i].col=i+1;
             tempseats[count][i].row=count+1;
             tempseats[count][i].sold=false;
-            tempseats[count][i].IDS="testID";
-            cout << tempseats[count][i].row << "  " << tempseats[count][i].col << "  " << tempseats[count][i].price << "  " << tempseats[count][i].sold << endl;
+            resetCharArray(tempseats[count][i].IDS, ID_SIZE);
+          //  cout << tempseats[count][i].row << "  " << tempseats[count][i].col << "  " << tempseats[count][i].price << "  " << tempseats[count][i].sold << endl;
         }
     }
 }
@@ -110,12 +113,13 @@ void sellSeat(SeatInfo seatstemp[10][16], PatronInfo currentPatronInfo[10][16])
 	cin >> currentPatronInfo[row][column].lastName;
 	cout << "Phone # in format nnnnnnnnnn";
 	cin >> currentPatronInfo[row][column].phoneNum;
+	updateInfoSingle(seatstemp, row, column);
 }
 
-/*
+
 void emptySeatChart()
 {
-    // empyt char array 
+    // empyt char array
     for(int i=0; i<10; i++)
     {
         for(int j=0; j<16; j++)
@@ -126,7 +130,7 @@ void emptySeatChart()
         }
     }
 }
-*/
+
 
 void updateInfoSingle(SeatInfo seats[10][16], int rownum, int column)
 {
@@ -252,7 +256,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			seats[i][j].row = i;
-			seats[i][j].col = j; 
+			seats[i][j].col = j;
 			if (i >= 0 && i <= 1) {
 				seats[i][j].price = 25;
 			}
@@ -281,7 +285,7 @@ void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 		}
 	}
 
-	// write each stuct element to binary file 
+	// write each stuct element to binary file
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			seatFile.write(reinterpret_cast<char *>(&seats[i][j]), sizeof(seats[i][j]));
@@ -342,7 +346,7 @@ void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream & patronFile)
 	string fileName = "PatronInfo.dat";
 	patronFile.open(fileName.c_str(), ios::out | ios::binary);
 
-	// write each stuct element to binary file 
+	// write each stuct element to binary file
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			patronFile.write(reinterpret_cast<char *>(&currPatronInfo[i][j]), sizeof(currPatronInfo[i][j]));
@@ -362,7 +366,7 @@ void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream & patronFile)
 
 // search and store patron info from file into array
 void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream& patronFile) {
-	// open Patron file 
+	// open Patron file
 	string fileName = "PatronInfo.dat";
 	patronFile.open(fileName.c_str(), ios::in | ios::binary);
 
@@ -414,5 +418,4 @@ void resetCharArray(char cString[], int SIZE) {
 	for (int index = 0; index < SIZE; index++)
 		cString[index] = 'x';
 }
-
 
