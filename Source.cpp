@@ -8,7 +8,8 @@
 #include <conio.h>
 #include <windows.h>
 #include <fstream>
-#include <ctime> 
+#include <ctime>
+
 using namespace std;
 
 #define clearConsole system("cls");
@@ -54,6 +55,7 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
 void menuChoice(char &choice);
 void updateSeatChart(SeatInfo seats[ROWS][COLS]);
+void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 
 static char SChart[ROWS][COLS];
 
@@ -86,7 +88,8 @@ int main()
     sellSeat(seats, currPatronInfo);
     break;
     case 'B':
-    // call group sale
+    sellBlock(seats, currPatronInfo);
+    break;
     case 'C':
     // call patron info search
     case 'D':
@@ -94,17 +97,10 @@ int main()
     case 'E':
     //reset a seats info
     case 'F':
-    cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter Y or y if you are sure.";
-    cin.clear();
-    fflush(stdin);
-    cin >> choice;
-    if(choice=='Y'||choice=='y')
-    emptySeatInfo(seats,currPatronInfo);
-    else
+    emptySeatInfo(seats, currPatronInfo);
     break;
     case 'G':
     //call credits
-    case 'H':
     break;
     }
     system("CLS");
@@ -163,7 +159,7 @@ function to sell a single seat to the user
 */
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-	int row=-1, column=-1, phnum=-1;
+	int row=-1, column=-1;
 	getNumbers(row,"Enter the row for the seat the patron is buying.\n",1,10);
 	row=row-1;
 	getNumbers(column,"Enter the column for the seat that the patron is buying.\n",1,16);
@@ -175,8 +171,8 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	cout << "Phone # in format nnnnnnnnnn\n";
 	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
 	seatstemp[row][column].sold=true;
-	// generateID for patron 
-	// generateID(row, column, seatstemp, currPatronInfo);
+	// generateID for patron
+    generateID(row, column, seatstemp, currPatronInfo);
 }
 
 /*
@@ -195,6 +191,53 @@ void updateSeatChart(SeatInfo seats[ROWS][COLS])
                 SChart[i][j]='O';
         }
     }
+}
+
+/*
+Function to sell blocks of seats at once
+*/
+
+void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
+{
+    int row=-1, colstart=-1, colend=-1;
+    bool fail=true;
+    while(fail==true)
+    {
+    fail=false;
+	getNumbers(row,"Enter the row for the first seat the patron is buying.\n",1,10);
+	row=row-1;
+	getNumbers(colstart,"Enter the column for the first seat that the patron is buying.\n",1,16);
+	colstart=colstart-1;
+	getNumbers(colend,"Enter the column for the last seat that the patron is buying.\n",1,16);
+	colend=colend-1;
+	if(colstart<colend)
+    {
+        for(int i=colstart; i<colend; i++)
+        {
+            if(seats[row][i].sold==true)
+            {
+                fail=true;
+                cout << "One or more of those seats is taken.\n Please make another selection.\n";
+            }
+    }
+    if(colend<colstart)
+        for(int i=colend; i<colstart; i++)
+        {
+            if(seats[row][i].sold==true)
+            {
+                fail=true;
+                cout << "One or more of those seats is taken.\n Please make another selection.\n";
+            }
+        }
+    }
+}
+/*	cout << "Enter first name\n";
+	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
+	cout << "Last name\n";
+	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
+	cout << "Phone # in format nnnnnnnnnn\n";
+	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
+	seatstemp[row][column].sold=true;*/
 }
 
 //jeel's code
@@ -287,13 +330,28 @@ void menuChoice(char &choice)
     cin.clear();
     fflush(stdin);
     cin >> choice;
-    // choice = menuChoiceValidate()
+    choice = menuChoiceValidate();
     if(choice=='h'||choice=='H')
     {
     cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
+    cin.clear();
+    fflush(stdin);
     cin >> choice;
+    choice = menuChoiceValidate();
     if(choice=='y'||choice=='Y')
         choice='H';
+    else
+        choice='X';
+    }
+    if(choice=='f'||choice=='F')
+    {
+    cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter Y or y if you are sure.";
+    cin.clear();
+    fflush(stdin);
+    cin >> choice;
+    choice = menuChoiceValidate();
+    if(choice=='Y'||choice=='y')
+        choice='F';
     else
         choice='X';
     }
@@ -457,6 +515,7 @@ void resetCharArray(char cString[], int SIZE) {
 		cString[index] = 'x';
 }
 
+
 //************************************************************
 //     Definition of Function generateID                     *
 //         This function generates the id for a new patron   *
@@ -466,22 +525,22 @@ void resetCharArray(char cString[], int SIZE) {
 //************************************************************
 
 void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
-	unsigned seed = time(0);
-	string tempID = "";
-	int randNum = 0;
-	// get first two letters of ID
-	tempID += currPatronInfo[row][col].firstName[0];
-	tempID += currPatronInfo[row][col].lastName[0];
-	// generate numbers for ID
-	srand(seed);
+    unsigned seed = time(0);
+    string tempID = "";
+    int randNum = 0;
+    // get first two letters of ID
+    tempID += currPatronInfo[row][col].firstName[0];
+    tempID += currPatronInfo[row][col].lastName[0];
+    // generate numbers for ID
+    srand(seed);
 	randNum = (rand() % 9999 - 1000 + 1) + 1000;
-	// concatnate number and letters
-	tempID += to_string(randNum);
-	// store ID in seat array and patron array
-	for (int i = 0; i < ID_SIZE; i++) {
-		seats[row][col].IDS[i] = tempID[i];
-		currPatronInfo[row][col].id[i] = tempID[i];
-	}
+    // concatnate number and letters
+    tempID += to_string(randNum);
+    // store ID in seat array and patron array
+    for (int i = 0; i < ID_SIZE; i++) {
+        seats[row][col].IDS[i] = tempID[i];
+        currPatronInfo[row][col].id[i] = tempID[i];
+    }
 }
 
 //***********************************************
@@ -512,8 +571,8 @@ char menuChoiceValidate() {
 			cout << endl << endl << endl;
 			cout << setw(7) << " " << "Error: Invalid Input" << endl;
 			cout << setw(7) << " " << "Enter a choice A - F" << endl;
-			cout << setw(7) << " "; 
-			cin >> choice; 
+			cout << setw(7) << " ";
+			cin >> choice;
 			if ((choice >= 65 && choice <= 72) ||
 				(choice >= 97 && choice <= 104)) {
 				flag = false;
