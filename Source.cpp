@@ -9,8 +9,9 @@
 #include <windows.h>
 #include <fstream>
 #include <ctime> 
-
 using namespace std;
+
+#define clearConsole system("cls");
 
 // Constants
 // Array sizes
