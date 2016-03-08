@@ -46,6 +46,7 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
 void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
+char menuChoiceValidate();
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -286,6 +287,7 @@ void menuChoice(char &choice)
     cin.clear();
     fflush(stdin);
     cin >> choice;
+    // choice = menuChoiceValidate()
     if(choice=='h'||choice=='H')
     {
     cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
@@ -480,4 +482,43 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 		seats[row][col].IDS[i] = tempID[i];
 		currPatronInfo[row][col].id[i] = tempID[i];
 	}
+}
+
+//***********************************************
+//
+//************************************************
+
+char menuChoiceValidate() {
+	bool error = 1;
+	char choice;
+	try {
+		cout << "type a letter between a and f, inclusive." << endl;
+		cin >> choice;
+		if (cin.fail()) {
+			throw error;
+		}
+		else if (!(choice >= 65 && choice <= 72) &&
+			!(choice >= 97 && choice <= 104)) {
+			throw error;
+		}
+		else return choice;
+	}
+	catch (bool error) {
+		bool flag = true;
+		while (flag) {
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			clearConsole
+			cout << endl << endl << endl;
+			cout << setw(7) << " " << "Error: Invalid Input" << endl;
+			cout << setw(7) << " " << "Enter a choice A - F" << endl;
+			cout << setw(7) << " "; 
+			cin >> choice; 
+			if ((choice >= 65 && choice <= 72) ||
+				(choice >= 97 && choice <= 104)) {
+				flag = false;
+			}
+		}
+	}
+	return choice;
 }
