@@ -67,7 +67,8 @@ int main()
     // 2-d arrays
     SeatInfo seats[ROWS][COLS];
     PatronInfo currPatronInfo[ROWS][COLS];
-    char choice;
+
+    char choice='M';
     initSeat(seats);
     emptySeatInfo(seats,currPatronInfo);
 
@@ -160,15 +161,15 @@ function to sell a single seat to the user
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
 	int row=-1, column=-1;
-	getNumbers(row,"Enter the row for the seat the patron is buying.\n",1,10);
+	getNumbers(row,"Enter the row for the seat the patron is buying.\n\n",1,10);
 	row=row-1;
-	getNumbers(column,"Enter the column for the seat that the patron is buying.\n",1,16);
+	getNumbers(column,"Enter the column for the seat that the patron is buying.\n\n",1,16);
 	column=column-1;
-	cout << "Enter first name\n";
+	cout << "Enter first name\n\n";
 	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
 	cout << "Last name\n";
 	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
-	cout << "Phone # in format nnnnnnnnnn\n";
+	cout << "Phone # in format nnnnnnnnnn\n\n";
 	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
 	seatstemp[row][column].sold=true;
 	// generateID for patron
@@ -199,19 +200,27 @@ Function to sell blocks of seats at once
 
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-    int row=-1, colstart=-1, colend=-1;
-    bool fail=true;
-    while(fail==true)
+    cout << "One patron's information will be used for every seat in a group sale.\n";
+
+    int row=-1, colstart=-1, colend=-1, tempcol=-1;
+    char choice='M', tempFirst[FNAME_SIZE], tempLast[LNAME_SIZE], tempNum[DIGITS];
+    bool fail=false;
+
+    do
     {
-    fail=false;
-	getNumbers(row,"Enter the row for the first seat the patron is buying.\n",1,10);
-	row=row-1;
-	getNumbers(colstart,"Enter the column for the first seat that the patron is buying.\n",1,16);
-	colstart=colstart-1;
-	getNumbers(colend,"Enter the column for the last seat that the patron is buying.\n",1,16);
-	colend=colend-1;
-	if(colstart<colend)
-    {
+        fail=false;
+        getNumbers(row,"Enter the row for the first seat the patron is buying.\n",1,10);
+        row=row-1;
+        getNumbers(colstart,"Enter the column for the first seat that the patron is buying.\n",1,16);
+        colstart=colstart-1;
+        getNumbers(colend,"Enter the column for the last seat that the patron is buying.\n",1,16);
+        colend=colend-1;
+        if(colstart>colend)
+        {
+            tempcol=colend;
+            colend=colstart;
+            colend=tempcol;
+        }
         for(int i=colstart; i<colend; i++)
         {
             if(seats[row][i].sold==true)
@@ -219,26 +228,38 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
                 fail=true;
                 cout << "One or more of those seats is taken.\n Please make another selection.\n";
             }
-    }
-    if(colend<colstart)
-        for(int i=colend; i<colstart; i++)
+        }
+        if(fail==false&&colstart-colend<-7)
         {
-            if(seats[row][i].sold==true)
-            {
+            cout << "This range of seats crosses the aisle, are you sure you want to sell these seats?\nEnter Y or y to confirm selling the seats.\n";
+            cin.clear();
+            fflush(stdin);
+            cin >> choice;
+            choice = menuChoiceValidate();
+            if(choice=='y'||choice=='Y')
+                break;
+            else
                 fail=true;
-                cout << "One or more of those seats is taken.\n Please make another selection.\n";
-            }
         }
     }
+    while(fail==true);
+
+    cout << "Enter patron's first name\n";
+    cin >> tempFirst;
+    cout << "Enter patron's last name\n";
+    cin >> tempLast;
+    cout << "Enter patron's phone number in format nnnnnnnnnn\n";
+    cin >> tempNum;
+
+    for(int i=colstart ;i<colend ;i++)
+    {
+        strcpy(currPatronInfo[row][i].firstName, tempFirst);
+        strcpy(currPatronInfo[row][i].lastName, tempLast);
+        strcpy(currPatronInfo[row][i].phoneNum, tempNum);
+        seats[row][i].sold=true;
+    }
 }
-/*	cout << "Enter first name\n";
-	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
-	cout << "Last name\n";
-	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
-	cout << "Phone # in format nnnnnnnnnn\n";
-	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
-	seatstemp[row][column].sold=true;*/
-}
+
 
 //jeel's code
 
@@ -568,7 +589,7 @@ char menuChoiceValidate() {
 		bool flag = true;
 		while (flag) {
 			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			clearConsole
 			cout << endl << endl << endl;
 			cout << setw(7) << " " << "Error: Invalid Input" << endl;
