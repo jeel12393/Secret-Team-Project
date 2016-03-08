@@ -535,7 +535,9 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
     srand(seed);
 	randNum = (rand() % 9999 - 1000 + 1) + 1000;
     // concatnate number and letters
-    tempID += to_string(randNum);
+    ostringstream convert;
+    convert << randNum;
+    tempID += convert.str();
     // store ID in seat array and patron array
     for (int i = 0; i < ID_SIZE; i++) {
         seats[row][col].IDS[i] = tempID[i];
