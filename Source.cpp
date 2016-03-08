@@ -173,6 +173,8 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	cout << "Phone # in format nnnnnnnnnn\n";
 	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
 	seatstemp[row][column].sold=true;
+	// generateID for patron 
+	// generateID(row, column, seatstemp, currPatronInfo);
 }
 
 /*
