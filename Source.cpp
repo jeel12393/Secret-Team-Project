@@ -8,6 +8,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <fstream>
+#include <ctime> 
 
 using namespace std;
 
@@ -43,6 +44,7 @@ void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
 void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
+void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -448,4 +450,31 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 void resetCharArray(char cString[], int SIZE) {
 	for (int index = 0; index < SIZE; index++)
 		cString[index] = 'x';
+}
+
+//************************************************************
+//     Definition of Function generateID                     *
+//         This function generates the id for a new patron   *
+//         by getting the first letter of the patrons first  *
+//         and last name and concatenating them with a       *
+//         randomly generated number.                        *
+//************************************************************
+
+void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
+	unsigned seed = time(0);
+	string tempID = "";
+	int randNum = 0;
+	// get first two letters of ID
+	tempID += currPatronInfo[row][col].firstName[0];
+	tempID += currPatronInfo[row][col].lastName[0];
+	// generate numbers for ID
+	srand(seed);
+	randNum = (rand() % 9999 - 1000 + 1) + 1000;
+	// concatnate number and letters
+	tempID += to_string(randNum);
+	// store ID in seat array and patron array
+	for (int i = 0; i < ID_SIZE; i++) {
+		seats[row][col].IDS[i] = tempID[i];
+		currPatronInfo[row][col].id[i] = tempID[i];
+	}
 }
