@@ -17,13 +17,13 @@ using namespace std;
 // Constants
 // Array sizes
 const int ID_SIZE = 7, FNAME_SIZE = 25, LNAME_SIZE = 25, DIGITS = 10,
-   		ROWS = 10, COLS = 16;
+ROWS = 10, COLS = 16;
 
 struct SeatInfo
 {
-    int row, col, price;
-    bool sold;
-    char IDS[ID_SIZE]; // change to char IDS[ID_SIZE];
+	int row, col, price;
+	bool sold;
+	char IDS[ID_SIZE]; // change to char IDS[ID_SIZE];
 };
 struct PatronInfo { // Nick
 	char id[ID_SIZE];
@@ -40,6 +40,7 @@ void showSeatingchar();
 void SetColor(int);
 
 // Nick's
+bool checkFile(fstream &, string); 
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
@@ -48,6 +49,8 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 void resetCharArray(char[], int);
 void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 char menuChoiceValidate();
+bool validateName(string name, int row, int col, SeatInfo seats[ROWS][COLS]);
+bool menuChoiceValidate(string);
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -61,56 +64,70 @@ static char SChart[ROWS][COLS];
 
 int main()
 {
-    // file objects
-    fstream seatFile;
-    fstream patronFile;
-    // 2-d arrays
-    SeatInfo seats[ROWS][COLS];
-    PatronInfo currPatronInfo[ROWS][COLS];
+	// file objects
+	fstream seatFile;
+	fstream patronFile;
+	// 2-d arrays
+	SeatInfo seats[ROWS][COLS];
+	PatronInfo currPatronInfo[ROWS][COLS];
+	// file exists flag
+	bool fileExists; 
 
-    char choice='M';
-    initSeat(seats);
-    emptySeatInfo(seats,currPatronInfo);
+	char choice = NULL;
+	initSeat(seats);
+	emptySeatInfo(seats, currPatronInfo);
 
-    getPatronInfo(currPatronInfo,patronFile);
-    getSeatInfo(seats,seatFile);
+	/*
+	// check if files exist, if not create them
+	fileExists = checkFile(seatFile, "seatsInfoFile.dat");
+	// if check file returns true, file already exists
+	if (fileExists)
+		// read data from file
+		getSeatInfo(seats, seatFile);
+	fileExists = checkFile(patronFile, "seatsInfoFile.dat");
+	// if check file returns true, file already exists 
+	if (fileExists) 
+		// read data from file
+		getPatronInfo(currPatronInfo, patronFile);
+		*/
 
-    while(choice!='H')
-    {
-    choice='X';
-    updateSeatChart(seats);
-    showSeatingchar();
-    showMenu();
-    menuChoice(choice);
-    choice=toupper(choice);
-    switch(choice)
-    {
-    case 'A':
-    sellSeat(seats, currPatronInfo);
-    break;
-    case 'B':
-    sellBlock(seats, currPatronInfo);
-    break;
-    case 'C':
-    // call patron info search
-    case 'D':
-    //total revenue/seats remaining
-    case 'E':
-    //reset a seats info
-    case 'F':
-    emptySeatInfo(seats, currPatronInfo);
-    break;
-    case 'G':
-    //call credits
-    break;
-    }
-    system("CLS");
-    }
 
-    saveSeatInfo(seats, seatFile);
-    savePatronInfo(currPatronInfo, patronFile);
+	while (choice != 'H')
+	{
+		choice = 'X';
+		updateSeatChart(seats);
+		showSeatingchar();
+		showMenu();
+		menuChoice(choice);
+		choice = toupper(choice);
+		switch (choice)
+		{
+		case 'A':
+			sellSeat(seats, currPatronInfo);
+			break;
+		case 'B':
+			sellBlock(seats, currPatronInfo);
+			break;
+		case 'C':
+			// call patron info search
+		case 'D':
+			//total revenue/seats remaining
+		case 'E':
+			//reset a seats info
+		case 'F':
+			emptySeatInfo(seats, currPatronInfo);
+			break;
+		case 'G':
+			//call credits
+			break;
+		}
+		system("CLS");
+	}
 
-    return 0;
+	saveSeatInfo(seats, seatFile);
+	savePatronInfo(currPatronInfo, patronFile);
+
+	return 0;
 }
 
 /*
@@ -118,22 +135,22 @@ function to initialize the seats array for prices and col/row numbers
 */
 void initSeat(SeatInfo tempseats[10][16])
 {
-    for(int count=0;count<10;count++)
-    {
-        for(int i=0;i<16;i++)
-        {
-            if(count<=3)
-                tempseats[count][i].price=50;
-            if(count>=4&&count<=7)
-                tempseats[count][i].price=35;
-            if(count>=8)
-                tempseats[count][i].price=25;
-            tempseats[count][i].col=i+1;
-            tempseats[count][i].row=count+1;
-            tempseats[count][i].sold=false;
-            resetCharArray(tempseats[count][i].IDS, ID_SIZE);
-        }
-    }
+	for (int count = 0; count<10; count++)
+	{
+		for (int i = 0; i<16; i++)
+		{
+			if (count <= 3)
+				tempseats[count][i].price = 50;
+			if (count >= 4 && count <= 7)
+				tempseats[count][i].price = 35;
+			if (count >= 8)
+				tempseats[count][i].price = 25;
+			tempseats[count][i].col = i + 1;
+			tempseats[count][i].row = count + 1;
+			tempseats[count][i].sold = false;
+			resetCharArray(tempseats[count][i].IDS, ID_SIZE);
+		}
+	}
 }
 
 /*
@@ -142,17 +159,17 @@ Good for getting and validating input data
 */
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 {
-    cin.clear();
-    fflush(stdin);
-    char test[999];
-    while(thedata>upperbound||thedata<lowerbound)
-    {
-    cout << message;
-    cin.getline(test,INT_MAX);
-    thedata=atoi(test);
-    cin.clear();
-    fflush(stdin);
-    }
+	cin.clear();
+	fflush(stdin);
+	char test[999];
+	while (thedata>upperbound || thedata<lowerbound)
+	{
+		cout << message;
+		cin.getline(test, INT_MAX);
+		thedata = atoi(test);
+		cin.clear();
+		fflush(stdin);
+	}
 }
 
 /*
@@ -160,20 +177,24 @@ function to sell a single seat to the user
 */
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-	int row=-1, column=-1;
-	getNumbers(row,"Enter the row for the seat the patron is buying.\n\n",1,10);
-	row=row-1;
-	getNumbers(column,"Enter the column for the seat that the patron is buying.\n\n",1,16);
-	column=column-1;
+	int row = -1, column = -1;
+	getNumbers(row, "Enter the row for the seat the patron is buying.\n\n", 1, 10);
+	row = row - 1;
+	getNumbers(column, "Enter the column for the seat that the patron is buying.\n\n", 1, 16);
+	column = column - 1;
 	cout << "Enter first name\n\n";
-	cin.getline(currPatronInfo[row][column].firstName,FNAME_SIZE);
+	cin.getline(currPatronInfo[row][column].firstName, FNAME_SIZE);
+	// validate name 
+	// 
 	cout << "Last name\n";
-	cin.getline(currPatronInfo[row][column].lastName,LNAME_SIZE);
+	cin.getline(currPatronInfo[row][column].lastName, LNAME_SIZE);
+	// validate name 
+	// 
 	cout << "Phone # in format nnnnnnnnnn\n\n";
-	cin.getline(currPatronInfo[row][column].phoneNum,DIGITS);
-	seatstemp[row][column].sold=true;
+	cin.getline(currPatronInfo[row][column].phoneNum, DIGITS);
+	seatstemp[row][column].sold = true;
 	// generateID for patron
-    generateID(row, column, seatstemp, currPatronInfo);
+	generateID(row, column, seatstemp, currPatronInfo);
 }
 
 /*
@@ -182,16 +203,16 @@ based on the values in seats[][].sold
 */
 void updateSeatChart(SeatInfo seats[ROWS][COLS])
 {
-    for(int i=0 ;i<ROWS ;i++)
-    {
-        for(int j=0 ;j<COLS; j++)
-        {
-            if (seats[i][j].sold==true)
-                SChart[i][j]='X';
-            else
-                SChart[i][j]='O';
-        }
-    }
+	for (int i = 0; i<ROWS; i++)
+	{
+		for (int j = 0; j<COLS; j++)
+		{
+			if (seats[i][j].sold == true)
+				SChart[i][j] = 'X';
+			else
+				SChart[i][j] = 'O';
+		}
+	}
 }
 
 /*
@@ -200,64 +221,63 @@ Function to sell blocks of seats at once
 
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-    cout << "One patron's information will be used for every seat in a group sale.\n";
+	cout << "One patron's information will be used for every seat in a group sale.\n";
 
-    int row=-1, colstart=-1, colend=-1, tempcol=-1;
-    char choice='M', tempFirst[FNAME_SIZE], tempLast[LNAME_SIZE], tempNum[DIGITS];
-    bool fail=false;
+	int row = -1, colstart = -1, colend = -1, tempcol = -1;
+	char choice = 'M', tempFirst[FNAME_SIZE], tempLast[LNAME_SIZE], tempNum[DIGITS];
+	bool fail = false;
 
-    do
-    {
-        fail=false;
-        getNumbers(row,"Enter the row for the first seat the patron is buying.\n",1,10);
-        row=row-1;
-        getNumbers(colstart,"Enter the column for the first seat that the patron is buying.\n",1,16);
-        colstart=colstart-1;
-        getNumbers(colend,"Enter the column for the last seat that the patron is buying.\n",1,16);
-        colend=colend-1;
-        if(colstart>colend)
-        {
-            tempcol=colend;
-            colend=colstart;
-            colend=tempcol;
-        }
-        for(int i=colstart; i<colend; i++)
-        {
-            if(seats[row][i].sold==true)
-            {
-                fail=true;
-                cout << "One or more of those seats is taken.\n Please make another selection.\n";
-            }
-        }
-        if(fail==false&&colstart-colend<-7)
-        {
-            cout << "This range of seats crosses the aisle, are you sure you want to sell these seats?\nEnter Y or y to confirm selling the seats.\n";
-            cin.clear();
-            fflush(stdin);
-            cin >> choice;
-            choice = menuChoiceValidate();
-            if(choice=='y'||choice=='Y')
-                break;
-            else
-                fail=true;
-        }
-    }
-    while(fail==true);
+	do
+	{
+		fail = false;
+		getNumbers(row, "Enter the row for the first seat the patron is buying.\n", 1, 10);
+		row = row - 1;
+		getNumbers(colstart, "Enter the column for the first seat that the patron is buying.\n", 1, 16);
+		colstart = colstart - 1;
+		getNumbers(colend, "Enter the column for the last seat that the patron is buying.\n", 1, 16);
+		colend = colend - 1;
+		if (colstart>colend)
+		{
+			tempcol = colend;
+			colend = colstart;
+			colend = tempcol;
+		}
+		for (int i = colstart; i<colend; i++)
+		{
+			if (seats[row][i].sold == true)
+			{
+				fail = true;
+				cout << "One or more of those seats is taken.\n Please make another selection.\n";
+			}
+		}
+		if (fail == false && colstart - colend<-7)
+		{
+			cout << "This range of seats crosses the aisle, are you sure you want to sell these seats?\nEnter Y or y to confirm selling the seats.\n";
+			cin.clear();
+			fflush(stdin);
+			cin >> choice;
+			choice = menuChoiceValidate();
+			if (choice == 'y' || choice == 'Y')
+				break;
+			else
+				fail = true;
+		}
+	} while (fail == true);
 
-    cout << "Enter patron's first name\n";
-    cin >> tempFirst;
-    cout << "Enter patron's last name\n";
-    cin >> tempLast;
-    cout << "Enter patron's phone number in format nnnnnnnnnn\n";
-    cin >> tempNum;
+	cout << "Enter patron's first name\n";
+	cin >> tempFirst;
+	cout << "Enter patron's last name\n";
+	cin >> tempLast;
+	cout << "Enter patron's phone number in format nnnnnnnnnn\n";
+	cin >> tempNum;
 
-    for(int i=colstart ;i<colend ;i++)
-    {
-        strcpy(currPatronInfo[row][i].firstName, tempFirst);
-        strcpy(currPatronInfo[row][i].lastName, tempLast);
-        strcpy(currPatronInfo[row][i].phoneNum, tempNum);
-        seats[row][i].sold=true;
-    }
+	for (int i = colstart; i<colend; i++)
+	{
+		strcpy_s(currPatronInfo[row][i].firstName, tempFirst);
+		strcpy_s(currPatronInfo[row][i].lastName, tempLast);
+		strcpy_s(currPatronInfo[row][i].phoneNum, tempNum);
+		seats[row][i].sold = true;
+	}
 }
 
 
@@ -265,82 +285,82 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 
 void showSeatingchar()
 {
-    const char TAKEN = 'X';//seats taken
+	const char TAKEN = 'X';//seats taken
 	const char EMPTY = 'O';//seats free
-	const int row=10;
-	const int col=16;
+	const int row = 10;
+	const int col = 16;
 	SetColor(14);
-	cout<<endl<<endl<<endl<<endl;
-    cout<<setw(48)<<"HUNTINGTON PLAYHOUSE"<<endl;
-	cout<<setw(48)<<"SEATING CHART\n\n\n";
-	cout<<setw(42)<<"Rear\n\n\n";
-    cout <<setw(10)<< "            Seats " <<endl;
-	cout<<setw(10)<<"Row"<<setw(2)<<" ";
-	for(int k =1; k <=col;k++)
+	cout << endl << endl << endl << endl;
+	cout << setw(48) << "HUNTINGTON PLAYHOUSE" << endl;
+	cout << setw(48) << "SEATING CHART\n\n\n";
+	cout << setw(42) << "Rear\n\n\n";
+	cout << setw(10) << "            Seats " << endl;
+	cout << setw(10) << "Row" << setw(2) << " ";
+	for (int k = 1; k <= col; k++)
 	{
-		cout<<setw(1)<<k<<" " ;
-		if(k<9)
-        {
-            cout<<" ";
-        }
-        if(k==8)
-        {
-            cout<< "     ";
-        }
-	}
-    cout<<endl;
-	cout<<setw(40)<< "Aisle"<<endl;
-    for(int i=9;i>-1;i--)
-	{
-        cout << endl;
-        cout<<setw(10)<< i+1<<setw(1)<<"  ";
-		if(i<10)
-        {
-            cout<<"";
-        }
-        for(int j=0;j<col;j++)
+		cout << setw(1) << k << " ";
+		if (k<9)
 		{
-		 //   cout<<setw(1)<< EMPTY<<" ";
-		 cout << setw(1) << SChart[i][j] << " ";
-            if(j<9)
-            {
-                cout<<" ";
-            }
-            if(j>8)
-            {
-                cout<<" ";
-            }
-            if(j==7)
-            {
-                cout<<"     ";
-            }
-        }
+			cout << " ";
+		}
+		if (k == 8)
+		{
+			cout << "     ";
+		}
 	}
-	cout <<endl;
-	cout<<endl;
-	cout<<setw(40)<<"Front"<<endl;
-	string line1,line2;
-    line1 =line1.assign(49,'-');
-    line2 =line2.assign(30,'-');
-    cout<<endl;
-    cout<<setw(13)<<"+"<<line1<<"+"<<endl;
-    cout<<setw(13)<<"|"<<setw(50)<<"|"<<endl;
-    cout<<setw(13)<<"|"<<setw(27)<<"STAGE"<<setw(23)<<"|"<<endl;
-    cout<<setw(13)<<"|"<<setw(50)<<"|"<<endl;
-    cout<<setw(13)<<"+"<<line1<<"+"<<endl;
-    {
-        SetColor(13);
-        cout<<"+"<<line2<<"+"<<endl;
-        cout<<"|"<<"Row 1-4 Cost $50.00 Each"<<setw(7)<<"|"<<endl;
-        cout<<"|"<<"Row 5-8 Cost $35.00 Each"<<setw(7)<<"|"<<endl;
-        cout<<"|"<<"Row 9-10 Cost $25.00 Each"<<setw(6)<<"|"<<endl;
-        cout<<"+"<<line2<<"+"<<endl;
-    }
+	cout << endl;
+	cout << setw(40) << "Aisle" << endl;
+	for (int i = 9; i>-1; i--)
+	{
+		cout << endl;
+		cout << setw(10) << i + 1 << setw(1) << "  ";
+		if (i<10)
+		{
+			cout << "";
+		}
+		for (int j = 0; j<col; j++)
+		{
+			//   cout<<setw(1)<< EMPTY<<" ";
+			cout << setw(1) << SChart[i][j] << " ";
+			if (j<9)
+			{
+				cout << " ";
+			}
+			if (j>8)
+			{
+				cout << " ";
+			}
+			if (j == 7)
+			{
+				cout << "     ";
+			}
+		}
+	}
+	cout << endl;
+	cout << endl;
+	cout << setw(40) << "Front" << endl;
+	string line1, line2;
+	line1 = line1.assign(49, '-');
+	line2 = line2.assign(30, '-');
+	cout << endl;
+	cout << setw(13) << "+" << line1 << "+" << endl;
+	cout << setw(13) << "|" << setw(50) << "|" << endl;
+	cout << setw(13) << "|" << setw(27) << "STAGE" << setw(23) << "|" << endl;
+	cout << setw(13) << "|" << setw(50) << "|" << endl;
+	cout << setw(13) << "+" << line1 << "+" << endl;
+	{
+		SetColor(13);
+		cout << "+" << line2 << "+" << endl;
+		cout << "|" << "Row 1-4 Cost $50.00 Each" << setw(7) << "|" << endl;
+		cout << "|" << "Row 5-8 Cost $35.00 Each" << setw(7) << "|" << endl;
+		cout << "|" << "Row 9-10 Cost $25.00 Each" << setw(6) << "|" << endl;
+		cout << "+" << line2 << "+" << endl;
+	}
 
 }
 
 void SetColor(int value){
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),  value);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), value);
 }
 
 /*
@@ -348,59 +368,60 @@ function to get user choice at main menu
 */
 void menuChoice(char &choice)
 {
-    cin.clear();
-    fflush(stdin);
-    cin >> choice;
-    choice = menuChoiceValidate();
-    if(choice=='h'||choice=='H')
-    {
-    cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
-    cin.clear();
-    fflush(stdin);
-    cin >> choice;
-    choice = menuChoiceValidate();
-    if(choice=='y'||choice=='Y')
-        choice='H';
-    else
-        choice='X';
-    }
-    if(choice=='f'||choice=='F')
-    {
-    cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter Y or y if you are sure.";
-    cin.clear();
-    fflush(stdin);
-    cin >> choice;
-    choice = menuChoiceValidate();
-    if(choice=='Y'||choice=='y')
-        choice='F';
-    else
-        choice='X';
-    }
+	cin.clear();
+	fflush(stdin);
+	// prompt for menu choice 
+	cout << setw(7) << " " << "Enter an option A - F: "; 
+	choice = menuChoiceValidate();
+	if (choice == 'h' || choice == 'H')
+	{
+		cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
+		cin.clear();
+		fflush(stdin);
+		cin >> choice;
+		choice = menuChoiceValidate();
+		if (choice == 'y' || choice == 'Y')
+			choice = 'H';
+		else
+			choice = 'X';
+	}
+	if (choice == 'f' || choice == 'F')
+	{
+		cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter Y or y if you are sure.";
+		cin.clear();
+		fflush(stdin);
+		cin >> choice;
+		choice = menuChoiceValidate();
+		if (choice == 'Y' || choice == 'y')
+			choice = 'F';
+		else
+			choice = 'X';
+	}
 }
 
 void showMenu()
 {
-    cout<<" A) Sell a ticket";
-    cout<<setw(45)<<" E) Refund a ticket"<<endl;
-    cout<<" B) Sell a group of tickets";
-    cout<<setw(42)<<" F) Delete all information"<<endl;
-    cout<<" C) Search patron information";
-    cout<<setw(37)<<" G) Credits for program"<<endl;
-    cout<<" D) Total revenue and seats remaining";
-    cout<<setw(22)<<" H) Quit Program"<<endl;
+	cout << " A) Sell a ticket";
+	cout << setw(45) << " E) Refund a ticket" << endl;
+	cout << " B) Sell a group of tickets";
+	cout << setw(42) << " F) Delete all information" << endl;
+	cout << " C) Search patron information";
+	cout << setw(37) << " G) Credits for program" << endl;
+	cout << " D) Total revenue and seats remaining";
+	cout << setw(22) << " H) Quit Program" << endl;
 }
 
 
 void errorCheckin(char choice)
 {
-    while(choice <'A'||choice>'F'&choice<'a'||choice>'f')
-    {
-        cout<<"Opps Enter Wrong Choice"<<endl;
-        cout<<"Please Enter Correct choice"<<endl;
-        cin>>choice;
-        cin.clear();
-        cin.ignore();
-    }
+	while (choice <'A' || choice>'F'&choice<'a' || choice>'f')
+	{
+		cout << "Opps Enter Wrong Choice" << endl;
+		cout << "Please Enter Correct choice" << endl;
+		cin >> choice;
+		cin.clear();
+		cin.ignore();
+	}
 }
 
 
@@ -449,7 +470,6 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 	//close file
 	seatFile.close();
 
-	system("pause");
 }
 
 //*********************************************************
@@ -511,7 +531,7 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 	for (int i = 0; i < ROWS; i++) {
 		for (int j = 0; j < COLS; j++) {
 			// empty XO char array
-			SChart[i][j]='O';
+			SChart[i][j] = 'O';
 			// reset info in seats array
 			seats[i][j].sold = 0;
 			resetCharArray(seats[i][j].IDS, ID_SIZE);
@@ -546,24 +566,24 @@ void resetCharArray(char cString[], int SIZE) {
 //************************************************************
 
 void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
-    unsigned seed = time(0);
-    string tempID = "";
-    int randNum = 0;
-    // get first two letters of ID
-    tempID += currPatronInfo[row][col].firstName[0];
-    tempID += currPatronInfo[row][col].lastName[0];
-    // generate numbers for ID
-    srand(seed);
+	unsigned seed = time(0);
+	string tempID = "";
+	int randNum = 0;
+	// get first two letters of ID
+	tempID += currPatronInfo[row][col].firstName[0];
+	tempID += currPatronInfo[row][col].lastName[0];
+	// generate numbers for ID
+	srand(seed);
 	randNum = (rand() % 9999 - 1000 + 1) + 1000;
-    // concatnate number and letters
-    ostringstream convert;
-    convert << randNum;
-    tempID += convert.str();
-    // store ID in seat array and patron array
-    for (int i = 0; i < ID_SIZE; i++) {
-        seats[row][col].IDS[i] = tempID[i];
-        currPatronInfo[row][col].id[i] = tempID[i];
-    }
+	// concatnate number and letters
+	ostringstream convert;
+	convert << randNum;
+	tempID += convert.str();
+	// store ID in seat array and patron array
+	for (int i = 0; i < ID_SIZE; i++) {
+		seats[row][col].IDS[i] = tempID[i];
+		currPatronInfo[row][col].id[i] = tempID[i];
+	}
 }
 
 //***********************************************
@@ -574,13 +594,12 @@ char menuChoiceValidate() {
 	bool error = 1;
 	char choice;
 	try {
-		cout << "type a letter between a and f, inclusive." << endl;
 		cin >> choice;
 		if (cin.fail()) {
 			throw error;
 		}
-		else if (!(choice >= 65 && choice <= 72) &&
-			!(choice >= 97 && choice <= 104)) {
+		else if (!((choice >= 65 && choice <= 72) ||
+			(choice >= 97 && choice <= 104))) {
 			throw error;
 		}
 		else return choice;
@@ -589,9 +608,9 @@ char menuChoiceValidate() {
 		bool flag = true;
 		while (flag) {
 			cin.clear();
-//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			clearConsole
-			cout << endl << endl << endl;
+				cout << endl << endl << endl;
 			cout << setw(7) << " " << "Error: Invalid Input" << endl;
 			cout << setw(7) << " " << "Enter a choice A - F" << endl;
 			cout << setw(7) << " ";
@@ -603,4 +622,60 @@ char menuChoiceValidate() {
 		}
 	}
 	return choice;
+}
+
+//************************************************************
+//
+//************************************************************
+
+bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS][COLS]) {
+	bool flag = false;
+	bool error = true;
+
+	try {
+		// check if each character is a letter
+		for (int i = 0; i < FNAME_SIZE; i++) {
+			if (!(isalpha(currPatronInfo[row][col].firstName[i])))
+				throw error; 
+		}
+		// check if name length is longer than firstName length
+		if (name.length() > FNAME_SIZE)
+			throw error;
+	}
+	catch (bool error) {	
+		cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
+		cout << setw(7) << " " << "Name must contain letters only, and can only be 25 characters long." << endl;
+		return flag;
+	}
+
+	// strncpy(currPatronInfo[row][col].firstName, name, FNAME_SIZE);
+	return flag = false;
+}
+
+//************************************************************
+//
+//************************************************************
+
+bool validateMenuChoice(string) {
+	bool flag = false; 
+
+	return flag;
+}
+
+//************************************************************
+//
+//************************************************************
+
+bool checkFile(fstream &dataFile, string fileName) {
+	// determine if file exists
+	dataFile.open(fileName.c_str(), ios::in | ios::binary);
+	if (dataFile.fail()) {
+		dataFile.open(fileName.c_str(), ios::out | ios::binary);
+		dataFile.close();
+		return false;
+	}
+	else
+		dataFile.close();
+		return true;
+
 }
