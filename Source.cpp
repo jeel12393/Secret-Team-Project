@@ -40,7 +40,7 @@ void showSeatingchar();
 void SetColor(int);
 
 // Nick's
-bool checkFile(fstream &, string); 
+bool checkFile(fstream &, string);
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
@@ -70,26 +70,14 @@ int main()
 	// 2-d arrays
 	SeatInfo seats[ROWS][COLS];
 	PatronInfo currPatronInfo[ROWS][COLS];
-	// file exists flag
-	bool fileExists; 
 
 	char choice = NULL;
+
 	initSeat(seats);
 	emptySeatInfo(seats, currPatronInfo);
 
-	/*
-	// check if files exist, if not create them
-	fileExists = checkFile(seatFile, "seatsInfoFile.dat");
-	// if check file returns true, file already exists
-	if (fileExists)
-		// read data from file
-		getSeatInfo(seats, seatFile);
-	fileExists = checkFile(patronFile, "seatsInfoFile.dat");
-	// if check file returns true, file already exists 
-	if (fileExists) 
-		// read data from file
-		getPatronInfo(currPatronInfo, patronFile);
-		*/
+    getSeatInfo(seats, seatFile);
+    getPatronInfo(currPatronInfo, patronFile);
 
 
 	while (choice != 'H')
@@ -184,12 +172,12 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	column = column - 1;
 	cout << "Enter first name\n\n";
 	cin.getline(currPatronInfo[row][column].firstName, FNAME_SIZE);
-	// validate name 
-	// 
+	// validate name
+	//
 	cout << "Last name\n";
 	cin.getline(currPatronInfo[row][column].lastName, LNAME_SIZE);
-	// validate name 
-	// 
+	// validate name
+	//
 	cout << "Phone # in format nnnnnnnnnn\n\n";
 	cin.getline(currPatronInfo[row][column].phoneNum, DIGITS);
 	seatstemp[row][column].sold = true;
@@ -271,13 +259,13 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 	cout << "Enter patron's phone number in format nnnnnnnnnn\n";
 	cin >> tempNum;
 
-	for (int i = colstart; i<colend; i++)
-	{
-		strcpy_s(currPatronInfo[row][i].firstName, tempFirst);
-		strcpy_s(currPatronInfo[row][i].lastName, tempLast);
-		strcpy_s(currPatronInfo[row][i].phoneNum, tempNum);
-		seats[row][i].sold = true;
-	}
+    for(int i=colstart ;i<colend ;i++)
+    {
+        strcpy(currPatronInfo[row][i].firstName, tempFirst);
+        strcpy(currPatronInfo[row][i].lastName, tempLast);
+        strcpy(currPatronInfo[row][i].phoneNum, tempNum);
+        seats[row][i].sold=true;
+    }
 }
 
 
@@ -370,8 +358,8 @@ void menuChoice(char &choice)
 {
 	cin.clear();
 	fflush(stdin);
-	// prompt for menu choice 
-	cout << setw(7) << " " << "Enter an option A - F: "; 
+	// prompt for menu choice
+	cout << setw(7) << " " << "Enter an option A - F: ";
 	choice = menuChoiceValidate();
 	if (choice == 'h' || choice == 'H')
 	{
@@ -459,7 +447,7 @@ void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &seatFile) {
 	string fileName = "seatsInfoFile.dat";
 	seatFile.open(fileName.c_str(), ios::in | ios::binary);
 	// read each records and store into seat array
-	while (!seatFile.eof()) {
+	while (seatFile.good()) {
 		for (int i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLS; j++) {
 				seatFile.read(reinterpret_cast<char *>(&seats[i][j]),
@@ -508,7 +496,7 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream& patronFile) {
 	patronFile.open(fileName.c_str(), ios::in | ios::binary);
 
 	// read in each struct record
-	while (!patronFile.eof()) {
+	while (patronFile.good()) {
 		for (int i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLS; j++) {
 				patronFile.read(reinterpret_cast<char *>(&currPatronInfo[i][j]), sizeof(currPatronInfo[i][j]));
@@ -636,13 +624,13 @@ bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS
 		// check if each character is a letter
 		for (int i = 0; i < FNAME_SIZE; i++) {
 			if (!(isalpha(currPatronInfo[row][col].firstName[i])))
-				throw error; 
+				throw error;
 		}
 		// check if name length is longer than firstName length
 		if (name.length() > FNAME_SIZE)
 			throw error;
 	}
-	catch (bool error) {	
+	catch (bool error) {
 		cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
 		cout << setw(7) << " " << "Name must contain letters only, and can only be 25 characters long." << endl;
 		return flag;
@@ -657,7 +645,7 @@ bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS
 //************************************************************
 
 bool validateMenuChoice(string) {
-	bool flag = false; 
+	bool flag = false;
 
 	return flag;
 }
