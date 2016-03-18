@@ -16,7 +16,7 @@ using namespace std;
 
 // Constants
 // Array sizes
-const int ID_SIZE = 7, FNAME_SIZE = 25, LNAME_SIZE = 25, DIGITS = 10,
+const int ID_SIZE = 7, FNAME_SIZE = 26, LNAME_SIZE = 26, DIGITS = 11,
 ROWS = 10, COLS = 16;
 
 struct SeatInfo
@@ -51,9 +51,8 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 char menuChoiceValidate();
 bool validateName(string name, int row, int col, SeatInfo seats[ROWS][COLS]);
 bool menuChoiceValidate(string);
-// search for patron info
 void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-void showPatronInfo();
+void showPatronInfo(char[], PatronInfo currPatronInfo[ROWS][COLS]);
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -103,10 +102,13 @@ int main()
 		case 'C':
 			// call patron info search
 			searchPatronInfo(seats, currPatronInfo);
+			break;
 		case 'D':
 			//total revenue/seats remaining
+			break;
 		case 'E':
 			//reset a seats info
+			break;
 		case 'F':
 			emptySeatInfo(seats, currPatronInfo);
 			break;
@@ -173,10 +175,10 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	int row = -1, column = -1;
 	getNumbers(row, "Enter the row for the seat the patron is buying.\n\n", 1, 10);
 	//row = row - 1; 
-	row = 10 - row; // new assignment 
 	getNumbers(column, "Enter the column for the seat that the patron is buying.\n\n", 1, 16);
 	column = column - 1;
 	cout << "Enter first name\n\n";
+	row = 10 - row; // new assignment 
 	cin.getline(currPatronInfo[row][column].firstName, FNAME_SIZE);
 	// validate name
 	//
@@ -185,10 +187,16 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	// validate name
 	//
 	cout << "Phone # in format nnnnnnnnnn\n\n";
+	// validate phone number
 	cin.getline(currPatronInfo[row][column].phoneNum, DIGITS);
 	seatstemp[row][column].sold = true;
-	// generateID for patron
+	// generate ID for patron
 	generateID(row, column, seatstemp, currPatronInfo);
+	
+	// show generated id 
+	cout << currPatronInfo[row][column].id << endl;
+	cout << seatstemp[row][column].IDS << endl;
+	system("pause");
 }
 
 /*
@@ -657,13 +665,17 @@ bool validateMenuChoice(string) {
 }
 
 //************************************************************
-//
+//     Definition of function searchPatronInfo               *
+//                                                           *
+//      This fucntion allows the user to search for patron   *
+//       information by entering the patrons seat.           *
 //************************************************************
 
 void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
 	// variables 
 	int row, col;
 	char tempID[ID_SIZE];
+	char emptyID[ID_SIZE] = "xxxxxx";
 
 	clearConsole; 
 	cout << endl << endl << endl;
@@ -682,9 +694,48 @@ void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS
 
 	// search seats arrray for id by using row and col numbers
 	cout << seats[row][col].IDS << endl;
-	strncpy_s(tempID, seats[row][col].IDS, ID_SIZE - 1);
-	cout << tempID << endl;
-
 	system("pause");
+	// determine if id is not xxxxxx
+	if (strcmp(seats[row][col].IDS, emptyID) == 0) {
+		cout << setw(7) << " " << "Seat is currently empty. No patron information." << endl;
+	}
+	// if not empty call showPatronInfo function
+	else {
+		strncpy_s(tempID, seats[row][col].IDS, ID_SIZE - 1);
+		cout << tempID << endl;
 
+		system("pause");
+
+		showPatronInfo(tempID, currPatronInfo);
+	}
+}
+
+//***************************************************************
+//    Definition of showPatronInfo                              *
+//                                                              *
+//        This function will run through each element of        *
+//        the patron array and compare the patron id to the     *
+//        searched id. If the id is the patron array, the       *
+//        the contents will be displayed to the user.           *
+//***************************************************************
+
+void showPatronInfo(char tempID[], PatronInfo currPatronInfo[ROWS][COLS]) {
+	
+	for (int i = 0; i < ROWS; i++) {
+		for (int j = 0; j < COLS; j++) {
+			// compare seat temp ID with id in patron array
+			if (strcmp(tempID, currPatronInfo[i][j].id) == 0) {
+				clearConsole;
+				cout << "\n\n\n";
+				cout << setw(5) << " " << "Seat Row: " << (ROWS - i) << endl;
+				cout << setw(5) << " " << "Seat Number/Column : " << (j + 1) << endl << endl;
+				cout << setw(15) << " " << "Patron Information" << endl;
+				cout << setw(7) << " " << "ID:         " << currPatronInfo[i][j].id << endl;
+				cout << setw(7) << " " << "First Name: " << currPatronInfo[i][j].firstName << endl;
+				cout << setw(7) << " " << "Last Name:  " << currPatronInfo[i][j].lastName << endl;
+				cout << setw(7) << " " << "Phone:      " << currPatronInfo[i][j].phoneNum << endl;
+				system("pause");
+			}
+		}
+	}
 }
