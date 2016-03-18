@@ -8,9 +8,9 @@ load seats info DONE
 delete all info DONE  
 initilalize patron info DONE  
 delete all info DONE  
-show patron info  DONE
-search patron info  DONE
-error checking
+show patron info  DONE  
+search patron info  DONE  
+error checking  
 
 Reign:  
 combine in main()       
