@@ -8,6 +8,8 @@ load seats info DONE
 delete all info DONE  
 initilalize patron info DONE  
 delete all info DONE  
+show patron info  DONE
+search patron info  DONE
 error checking
 
 Reign:  
@@ -17,13 +19,11 @@ initialize seats array DONE
 get menu choice DONE  
 sell group of tickets DONE  
 reset single seat info AKA refund  
-credits  
 
 Jeel:  
 show seating chart  DONE  
 show menu options  DONE  
 total revenue  
 seats remaining  
-show patron info  
-search patron info  
 phone # display formatting ?  
+credits  
