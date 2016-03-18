@@ -51,6 +51,7 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 char menuChoiceValidate();
 bool validateName(string name, int row, int col, SeatInfo seats[ROWS][COLS]);
 bool menuChoiceValidate(string);
+// jeel's 
 void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void showPatronInfo(char[], PatronInfo currPatronInfo[ROWS][COLS]);
 
