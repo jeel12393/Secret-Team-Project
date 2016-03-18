@@ -382,11 +382,20 @@ function to get user choice at main menu
 */
 void menuChoice(char &choice)
 {
+    string userInput = "";
+    bool flag = true;
+
 	cin.clear();
 	fflush(stdin);
 	// prompt for menu choice
-	cout << setw(7) << " " << "Enter an option A - F: ";
-	choice = menuChoiceValidate();
+	while (flag) {
+        cout << "\n\n";
+        cout << setw(7) << " " << "Enter an option A - F: ";
+        //choice = menuChoiceValidate();
+        cin >> userInput;
+        flag = menuChoiceValidate(userInput);
+	}
+	choice = userInput[0];
 	if (choice == 'h' || choice == 'H')
 	{
 		cout << "Are you sure that you want to exit the program?\nIf you are sure enter a or A\n";
@@ -600,9 +609,11 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 	}
 }
 
-//***********************************************
-//
-//************************************************
+//*************************************************
+//    Definition of menuChoiceValidate            *
+//                                                *
+//      This function will ensures that the user
+//*************************************************
 
 char menuChoiceValidate() {
 	bool error = 1;
@@ -639,7 +650,9 @@ char menuChoiceValidate() {
 }
 
 //************************************************************
-//
+//      Definition of validateFName                          *
+//                                                           *
+//       This function will
 //************************************************************
 
 bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS][COLS]) {
@@ -670,8 +683,28 @@ bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS
 //
 //************************************************************
 
-bool validateMenuChoice(string) {
+bool menuChoiceValidate(string input) {
 	bool flag = false;
+	bool error = true;
+
+	try {
+	// check length of input, if greater than 1, input is wrong
+	if (input.length() > 1)
+        throw error;
+    // check if first character is a letter
+    if (!(isalpha(input[0])))
+        throw error;
+    // check if input was an option given
+    if (!((input[0] >= 65 && input[0] <= 72) ||
+			(input[0] >= 97 && input[0] <= 104)))
+			throw error;
+	}
+	catch (bool error) {
+	    cout << "\n\n";
+	    cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
+	    cout << setw(7) << " " << "Choice must be a letter A - F" << endl;
+	    return flag = true;
+	}
 
 	return flag;
 }
