@@ -63,6 +63,7 @@ void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
 void menuChoice(char &choice);
 void updateSeatChart(SeatInfo seats[ROWS][COLS]);
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
+void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 
 static char SChart[ROWS][COLS];
 
@@ -109,7 +110,7 @@ int main()
 			//total revenue/seats remaining
 			break;
 		case 'E':
-			//reset a seats info
+			refundSeat(seats, currPatronInfo);
 			break;
 		case 'F':
 			emptySeatInfo(seats, currPatronInfo);
@@ -161,7 +162,7 @@ void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 	char test[999];
 	while (thedata>upperbound || thedata<lowerbound)
 	{
-		cout << setw(7) << " " << message;
+		cout << setw(7) << " " << message << setw(7) << " ";
 		cin.getline(test, INT_MAX);
 		thedata = atoi(test);
 		cin.clear();
@@ -240,7 +241,7 @@ Function to sell blocks of seats at once
 
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-	cout << "One patron's information will be used for every seat in a group sale.\n";
+	cout << setw(7) << " " << "One patron's information will be used for every seat in a group sale.\n";
 
 	int row = -1, colstart = -1, colend = -1, tempcol = -1;
 	char choice = 'M', tempFirst[FNAME_SIZE], tempLast[LNAME_SIZE], tempNum[DIGITS], tempID[ID_SIZE];
@@ -267,10 +268,10 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 			if (seats[row][i].sold == true)
 			{
 				fail = true;
-				cout << "One or more of those seats is taken.\n Please make another selection.\n";
+				cout << setw(7) << " " << "One or more of those seats is taken.\n" << setw(7) << " " << "Please make another selection.\n";
 			}
 		}
-		if (fail == false && colstart - colend<-7)
+		if (fail == false && (colstart < 8 && colend > 7))
 		{
 			cin.clear();
 			fflush(stdin);
@@ -280,7 +281,7 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
             // validate user input
             while (flag){
                 clearConsole;
-                cout << setw(7) << " " << "This range of seats crosses the aisle, are you sure you want to sell these seats?";
+                cout << setw(7) << " " << "This range of seats crosses the aisle.\n";
                 cout << setw(7) << " " << "\nEnter Y or y to confirm selling the seats.\n";
                 cin.ignore();
                 cin >> userInput;
@@ -319,6 +320,46 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 		strcpy(currPatronInfo[row][i].phoneNum, tempNum);
 		seats[row][i].sold = true;
 	}
+}
+
+void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
+{
+	int row = -1, col = -1;
+	char choice = 'M';
+//	string tempID="";
+
+	getNumbers(row, "Enter the row for the seat the patron wants to refund.\n\n", 1, 10);
+	getNumbers(col, "Enter the seat number(column) for the seat the patron wants to refund.\n\n", 1, 16);
+	col = col - 1;
+	row = 10 - row;
+//	tempID=currPatronInfo[row][col].id;
+//    showPatronInfo(tempID, currPatronInfo)
+	cout << endl << currPatronInfo[row][col].id;
+	cout << endl << currPatronInfo[row][col].firstName;
+	cout << endl << currPatronInfo[row][col].lastName;
+	cout << endl << currPatronInfo[row][col].phoneNum;
+	cout << endl << "All of this info will be deleted\nThis cannot be undone.\nEnter Y or y to confirm deletion.";
+    string userInput = "";
+    bool flag = true;
+            // validate user input
+    while (flag)
+    {
+        cin.ignore();
+        cin >> userInput;
+        flag = validate_Y_input(userInput);
+    }
+    choice = userInput[0];
+
+    if (choice == 'y' || choice == 'Y')
+    {
+        // make this stuff down here a function?
+        resetCharArray(currPatronInfo[row][col].id, ID_SIZE);
+        resetCharArray(currPatronInfo[row][col].lastName, FNAME_SIZE);
+        resetCharArray(currPatronInfo[row][col].firstName, LNAME_SIZE);
+        resetCharArray(currPatronInfo[row][col].phoneNum, DIGITS);
+        resetCharArray(seats[row][col].IDS, ID_SIZE);
+        seats[row][col].sold= false;
+    }
 }
 
 
