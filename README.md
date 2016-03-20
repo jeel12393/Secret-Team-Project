@@ -18,7 +18,7 @@ update seating chart DONE
 initialize seats array DONE  
 get menu choice DONE  
 sell group of tickets DONE  
-reset single seat info AKA refund  
+reset single seat info AKA refund DONE  
 
 Jeel:  
 show seating chart  DONE  
