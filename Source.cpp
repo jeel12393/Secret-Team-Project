@@ -40,7 +40,6 @@ void showSeatingchar();
 void SetColor(int);
 
 // Nick's
-bool checkFile(fstream &, string);
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
@@ -48,12 +47,14 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream&);
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void resetCharArray(char[], int);
 void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-char menuChoiceValidate();
-bool validateName(string name, int row, int col, SeatInfo seats[ROWS][COLS]);
-bool menuChoiceValidate(string);
-// jeel's
 void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void showPatronInfo(char[], PatronInfo currPatronInfo[ROWS][COLS]);
+// input validation
+bool validateName(string name);
+void copyTempToFirstName(string, PatronInfo currPatronInfo[ROWS][COLS], int, int);
+void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col);
+bool menuChoiceValidate(string input);
+bool validate_Y_input(string input);
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -117,7 +118,7 @@ int main()
 			//call credits
 			break;
 		}
-		system("CLS");
+		clearConsole;
 	}
 
 	saveSeatInfo(seats, seatFile);
@@ -160,7 +161,7 @@ void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 	char test[999];
 	while (thedata>upperbound || thedata<lowerbound)
 	{
-		cout << message;
+		cout << setw(7) << " " << message;
 		cin.getline(test, INT_MAX);
 		thedata = atoi(test);
 		cin.clear();
@@ -173,20 +174,35 @@ function to sell a single seat to the user
 */
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
+    string nameTemp = "";
+    bool flag = true;
+
 	int row = -1, column = -1;
 	getNumbers(row, "Enter the row for the seat the patron is buying.\n\n", 1, 10);
-	//row = row - 1;
 	getNumbers(column, "Enter the column for the seat that the patron is buying.\n\n", 1, 16);
 	column = column - 1;
-	cout << "Enter first name\n\n";
 	row = 10 - row; // new assignment
-	cin.getline(currPatronInfo[row][column].firstName, FNAME_SIZE);
-	// validate name
-	//
-	cout << "Last name\n";
-	cin.getline(currPatronInfo[row][column].lastName, LNAME_SIZE);
-	// validate name
-	//
+	// prompt for and validate first name
+	while (flag) {
+        cout << "Enter first name: ";
+        cin >> nameTemp;
+        flag = validateName(nameTemp);
+	}
+	// copy contents of name to patron array stuct member firstName
+	copyTempToFirstName(nameTemp, currPatronInfo, row, column);
+
+	// prompt for and validate last name
+	flag = true;
+	nameTemp = "";
+	cin.clear();
+	while (flag) {
+        cout << "Enter last name: ";
+        cin >> nameTemp;
+        flag = validateName(nameTemp);
+	}
+	copyTempToLastName(nameTemp, currPatronInfo, row, column);
+
+	cin.ignore();
 	cout << "Phone # in format nnnnnnnnnn\n\n";
 	// validate phone number
 	cin.getline(currPatronInfo[row][column].phoneNum, DIGITS);
@@ -256,12 +272,23 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 		}
 		if (fail == false && colstart - colend<-7)
 		{
-			cout << "This range of seats crosses the aisle, are you sure you want to sell these seats?\nEnter A or a to confirm selling the seats.\n";
 			cin.clear();
 			fflush(stdin);
-			cin >> choice;
-			choice = menuChoiceValidate();
-			if (choice == 'a' || choice == 'A')
+
+			string userInput = "";
+            bool flag = true;
+            // validate user input
+            while (flag){
+                clearConsole;
+                cout << setw(7) << " " << "This range of seats crosses the aisle, are you sure you want to sell these seats?";
+                cout << setw(7) << " " << "\nEnter Y or y to confirm selling the seats.\n";
+                cin.ignore();
+                cin >> userInput;
+                flag = validate_Y_input(userInput);
+            }
+            choice = userInput[0];
+
+			if (choice == 'y' || choice == 'Y')
 				break;
 			else
 				fail = true;
@@ -390,32 +417,49 @@ void menuChoice(char &choice)
 	// prompt for menu choice
 	while (flag) {
         cout << "\n\n";
-        cout << setw(7) << " " << "Enter an option A - F: ";
-        //choice = menuChoiceValidate();
+        cout << setw(7) << " " << "Enter an option A - H: ";
         cin >> userInput;
         flag = menuChoiceValidate(userInput);
 	}
-	choice = userInput[0];
+	choice = userInput[0]; // assign choice to first index of userInput
+
+	// if user chose choice H
 	if (choice == 'h' || choice == 'H')
 	{
-		cout << "Are you sure that you want to exit the program?\nIf you are sure enter a or A\n";
 		cin.clear();
 		fflush(stdin);
-		cin >> choice;
-		choice = menuChoiceValidate();
-		if (choice == 'a' || choice == 'A')
+		// reset variables for validating
+		userInput = "";
+		flag = true;
+		while (flag){
+           cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
+           cin.ignore();
+           cin >> userInput;
+           flag = validate_Y_input(userInput);
+		}
+		choice = userInput[0];
+		if (choice == 'y' || choice == 'Y')
 			choice = 'H';
 		else
 			choice = 'X';
 	}
+	// if user chose choice F
 	if (choice == 'f' || choice == 'F')
 	{
-		cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter a or A if you are sure.";
 		cin.clear();
 		fflush(stdin);
-		cin >> choice;
-		choice = menuChoiceValidate();
-		if (choice == 'a' || choice == 'A')
+		// reset variables for validating
+		userInput = "";
+		flag = true;
+		while (flag){
+           cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter y or Y if you are sure.";
+           cin.ignore();
+           cin >> userInput;
+           flag = validate_Y_input(userInput);
+		}
+		choice = userInput[0];
+
+		if (choice == 'y' || choice == 'Y')
 			choice = 'F';
 		else
 			choice = 'X';
@@ -598,7 +642,7 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 	// generate numbers for ID
 	srand(seed);
 	randNum = (rand() % 9999 - 1000 + 1) + 1000;
-	// concatnate number and letters
+	// concatenate number and letters
 	ostringstream convert;
 	convert << randNum;
 	tempID += convert.str();
@@ -609,79 +653,66 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 	}
 }
 
-//*************************************************
-//    Definition of menuChoiceValidate            *
-//                                                *
-//      This function will ensures that the user
-//*************************************************
-
-char menuChoiceValidate() {
-	bool error = 1;
-	char choice;
-	try {
-		cin >> choice;
-		if (cin.fail()) {
-			throw error;
-		}
-		else if (!((choice >= 65 && choice <= 72) ||
-			(choice >= 97 && choice <= 104))) {
-			throw error;
-		}
-		else return choice;
-	}
-	catch (bool error) {
-		bool flag = true;
-		while (flag) {
-			cin.clear();
-			//			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			clearConsole
-				cout << endl << endl << endl;
-			cout << setw(7) << " " << "Error: Invalid Input" << endl;
-			cout << setw(7) << " " << "Enter a choice A - F" << endl;
-			cout << setw(7) << " ";
-			cin >> choice;
-			if ((choice >= 65 && choice <= 72) ||
-				(choice >= 97 && choice <= 104)) {
-				flag = false;
-			}
-		}
-	}
-	return choice;
-}
-
 //************************************************************
 //      Definition of validateFName                          *
 //                                                           *
 //       This function will
 //************************************************************
 
-bool validateFName(string name, int row, int col, PatronInfo currPatronInfo[ROWS][COLS]) {
-	bool flag = false;
-	bool error = true;
-
+bool validateName(string name) {
+	bool flag = true;
+	string errorNotLetter = "Name must contain letters only\n";
+	string errorTooLong = "Name can only be 25 letters long.\n";
 	try {
 		// check if each character is a letter
-		for (int i = 0; i < FNAME_SIZE; i++) {
-			if (!(isalpha(currPatronInfo[row][col].firstName[i])))
-				throw error;
+		for (int i = 0; i < name.length(); i++) {
+			if (!(isalpha(name[i])))
+				throw errorNotLetter;
 		}
 		// check if name length is longer than firstName length
-		if (name.length() > FNAME_SIZE)
-			throw error;
+		if (name.length() > (FNAME_SIZE - 1))
+			throw errorTooLong;
 	}
-	catch (bool error) {
+	catch (string errorNotLetter) {
 		cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
-		cout << setw(7) << " " << "Name must contain letters only, and can only be 25 characters long." << endl;
+		cout << setw(7) << " " << errorNotLetter;
 		return flag;
 	}
-
-	// strncpy(currPatronInfo[row][col].firstName, name, FNAME_SIZE);
+	catch (string errorTooLong) {
+	    cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
+		cout << setw(7) << " " << errorTooLong;
+		return flag;
+	}
 	return flag = false;
 }
 
 //************************************************************
 //
 //************************************************************
+
+void copyTempToFirstName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
+
+    for (int i = 0; i < FNAME_SIZE - 1; i++) {
+        currPatronInfo[row][col].firstName[i] = temp[i];
+    }
+}
+
+//************************************************************
+//
+//************************************************************
+
+void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
+
+    for (int i = 0; i < FNAME_SIZE - 1; i++) {
+        currPatronInfo[row][col].lastName[i] = temp[i];
+    }
+}
+
+//*************************************************
+//    Definition of menuChoiceValidate            *
+//                                                *
+//      This function will ensures that the user
+//*************************************************
 
 bool menuChoiceValidate(string input) {
 	bool flag = false;
@@ -710,6 +741,29 @@ bool menuChoiceValidate(string input) {
 }
 
 //************************************************************
+//
+//************************************************************
+
+bool validate_Y_input(string input) {
+    bool flag = true;
+    string errorMsg = "Error: Invalid Input.";
+
+    try {
+        // determine if user entered more than one character
+        if (input.length() > 1)
+            throw errorMsg;
+        // determine if user entered a letter other than y or Y
+        if ( !(isalpha(input[0])) )
+            throw errorMsg;
+    }
+    catch (string errorMsg) {
+        cout << setw(7) << " " << errorMsg << endl;
+        return flag;
+    }
+    return flag = false;
+}
+
+//************************************************************
 //     Definition of function searchPatronInfo               *
 //                                                           *
 //      This fucntion allows the user to search for patron   *
@@ -725,7 +779,7 @@ void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS
 	clearConsole;
 	cout << endl << endl << endl;
 	// prompt for seat row;
-	cout << setw(7) << " " << "What deos the patron sit?" << endl;
+	cout << setw(7) << " " << "What does the patron sit?" << endl;
 	cout << setw(7) << " " << "Enter the seat row: ";
 	cin >> row;
 	// adjust row for array
@@ -784,3 +838,4 @@ void showPatronInfo(char tempID[], PatronInfo currPatronInfo[ROWS][COLS]) {
 		}
 	}
 }
+
