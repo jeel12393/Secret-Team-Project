@@ -16,7 +16,7 @@ using namespace std;
 
 // Constants
 // Array sizes
-const int ID_SIZE = 7, FNAME_SIZE = 26, LNAME_SIZE = 26, DIGITS = 11,
+const int ID_SIZE = 7, FNAME_SIZE = 26, LNAME_SIZE = 26, DIGITS = 12,
 ROWS = 10, COLS = 16;
 
 
@@ -468,11 +468,11 @@ void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS
 
     if (choice == 'y' || choice == 'Y')
     {
-        resetCharArray(currPatronInfo[row][col].id, ID_SIZE);
-        resetCharArray(currPatronInfo[row][col].lastName, FNAME_SIZE);
-        resetCharArray(currPatronInfo[row][col].firstName, LNAME_SIZE);
-        resetCharArray(currPatronInfo[row][col].phoneNum, DIGITS);
-        resetCharArray(seats[row][col].IDS, ID_SIZE);
+        resetCharArray(currPatronInfo[row][col].id, ID_SIZE - 1);
+        resetCharArray(currPatronInfo[row][col].lastName, FNAME_SIZE - 1);
+        resetCharArray(currPatronInfo[row][col].firstName, LNAME_SIZE - 1);
+        resetCharArray(currPatronInfo[row][col].phoneNum, DIGITS - 1);
+        resetCharArray(seats[row][col].IDS, ID_SIZE - 1);
         seats[row][col].sold=false;
     }
 }
@@ -835,7 +835,7 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 			SChart[i][j] = 'O';
 			// reset info in seats array
 			seats[i][j].sold = false;
-			resetCharArray(seats[i][j].IDS, ID_SIZE);
+			resetCharArray(seats[i][j].IDS, ID_SIZE - 1);
 			// reset info in patrons array
 			resetCharArray(currPatronInfo[i][j].id, (ID_SIZE - 1));
 			resetCharArray(currPatronInfo[i][j].firstName, (FNAME_SIZE - 1));
