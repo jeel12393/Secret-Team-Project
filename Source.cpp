@@ -19,12 +19,15 @@ using namespace std;
 const int ID_SIZE = 7, FNAME_SIZE = 26, LNAME_SIZE = 26, DIGITS = 11,
 ROWS = 10, COLS = 16;
 
-struct SeatInfo
+
+// Structures are self explanatory in their contents via variable names.
+struct SeatInfo // Reign
 {
 	int row, col, price;
 	bool sold;
-	char IDS[ID_SIZE]; // change to char IDS[ID_SIZE];
+	char IDS[ID_SIZE];
 };
+
 struct PatronInfo { // Nick
 	char id[ID_SIZE];
 	char firstName[FNAME_SIZE];
@@ -61,15 +64,15 @@ bool validatePhoneNum(string input);
 bool copyTempToPhoneNum(string, PatronInfo currPatronInfo[ROWS][COLS], int, int);
 
 // Reign's functions
-void initSeat(SeatInfo tempseats[ROWS][COLS]);
-void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
-void menuChoice(char &choice);
-void updateSeatChart(SeatInfo seats[ROWS][COLS]);
-void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
-void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
+void initSeat(SeatInfo tempseats[ROWS][COLS]); // Used to initialize a seats structure with base as well as blank data
+void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Sell a single seat to the user
+void getNumbers(int &thedata, string message, int lowerbound, int upperbound); // Get numbers between lowerbound and upperbound for entering row and columns for seat selling
+void menuChoice(char &choice); // Used to get user input for the menu
+void updateSeatChart(SeatInfo seats[ROWS][COLS]); // Updates the SChart static global used for displaying the seating chart
+void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Sells a portion of a row of seats to the user
+void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Refunds a single seat to the user. Group refunds weren't included as refunds are to be avoided in the first place.
 
-static char SChart[ROWS][COLS];
+static char SChart[ROWS][COLS]; // Static global used for printing the seating chart
 
 //-----------------------------------Reign's Code Below-----------------------------------
 int main()
@@ -77,28 +80,45 @@ int main()
 	// file objects
 	fstream seatFile;
 	fstream patronFile;
-	// 2-d arrays
+
+	// 2 dimensional arrays
 	SeatInfo seats[ROWS][COLS];
 	PatronInfo currPatronInfo[ROWS][COLS];
 
 	char choice = NULL;
 
+    // Function calls to initialize structures with prices, row & column numbers, and blank fields for other data.
 	initSeat(seats);
 	emptySeatInfo(seats, currPatronInfo);
+	cout << currPatronInfo[0][0].id << endl;
+	cout << currPatronInfo[0][0].firstName << endl;
+	cout << currPatronInfo[0][0].lastName << endl;
+	cout << currPatronInfo[0][0].phoneNum << endl;
+	system("pause");
+
+
 	// read files for data
 	// load data into seats and patron array
 	getSeatInfo(seats, seatFile);
 	getPatronInfo(currPatronInfo, patronFile);
 
-
+    // Sentinel value used to control loop iteration
 	while (choice != 'H')
 	{
+
+	    // Ensure choice is a value that won't take control from the user
 		choice = 'X';
+
+		// Updates the seating chart, prints it, and then prints the menu
 		updateSeatChart(seats);
-		showSeatingchar(); // show  current seat chart
+		showSeatingchar();
 		showMenu();
+
+		// Get user choice for the menu, and make it upper case
 		menuChoice(choice);
 		choice = toupper(choice);
+
+		// Control logic for what the program will do next. 'H' is not shown for exit as it controls the loop above.
 		switch (choice)
 		{
 		case 'A':
@@ -108,7 +128,6 @@ int main()
 			sellBlock(seats, currPatronInfo);
 			break;
 		case 'C':
-			// call patron info search
 			searchPatronInfo(seats, currPatronInfo);
 			break;
 		case 'D':
@@ -121,21 +140,27 @@ int main()
 			emptySeatInfo(seats, currPatronInfo);
 			break;
 		case 'G':
-			credit(); //call credits
+			credit();
 			break;
 		}
 		clearConsole;
 	}
 
+    // Save information to disk
 	saveSeatInfo(seats, seatFile);
 	savePatronInfo(currPatronInfo, patronFile);
 
 	return 0;
 }
 
-/*
-function to initialize the seats array for prices and col/row numbers
-*/
+
+//**************************************************************************
+//  function to initialize the seats array for prices, column numbers,     *
+//  row numbers, and sold status.                                          *
+//  For row numbers we ended up having [0][0] at the top left so           *
+//  We use 10 - row (or in this case 10 - count) to decide which array     *
+//  element is manipulated.                                                *
+//**************************************************************************
 void initSeat(SeatInfo tempseats[10][16])
 {
 	for (int count = 0; count<ROWS; count++)
@@ -156,10 +181,13 @@ void initSeat(SeatInfo tempseats[10][16])
 	}
 }
 
-/*
-Function designed to return an integer between an upper bound and lower bound
-Good for getting and validating input data
-*/
+
+//****************************************************************************
+//  Function designed to return an integer between an upper bound            *
+//  lower bound as specified by paramaters. Good for getting and validating  *
+//  input data for row and column numbers. Also passes a message to be       *
+//  repeated if data input is not good.                                      *
+//****************************************************************************
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 {
 	cin.clear();
@@ -175,9 +203,9 @@ void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
 	}
 }
 
-/*
-function to sell a single seat to the user
-*/
+//**********************************************************************
+//  function to sell a single seat to the user                         *
+//**********************************************************************
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
     string nameTemp = "";
@@ -188,10 +216,10 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	getNumbers(row, "Enter the row for the seat the patron is buying.\n\n", 1, 10);
 	getNumbers(column, "Enter the column for the seat that the patron is buying.\n\n", 1, 16);
 	column = column - 1;
-	row = 10 - row; // new assignment
+	row = 10 - row;
 	// prompt for and validate first name
 	while (flag) {
-        cout << "Enter first name: ";
+        cout << setw(7) << " " << "Enter first name: ";
         cin >> nameTemp;
         flag = validateName(nameTemp);
 	}
@@ -203,7 +231,7 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	nameTemp = "";
 	cin.clear();
 	while (flag) {
-        cout << "Enter last name: ";
+        cout << setw(7) << "  " << "Enter last name: ";
         cin >> nameTemp;
         flag = validateName(nameTemp);
 	}
@@ -229,10 +257,11 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	system("pause");
 }
 
-/*
-Updates the seating chart
-based on the values in seats[][].sold
-*/
+
+//*******************************************
+//  Updates the seating chart               *
+//  based on the values in seats[][].sold   *
+//*******************************************
 void updateSeatChart(SeatInfo seats[ROWS][COLS])
 {
 	for (int i = 0; i<ROWS; i++)
@@ -247,34 +276,48 @@ void updateSeatChart(SeatInfo seats[ROWS][COLS])
 	}
 }
 
-/*
-Function to sell blocks of seats at once
-*/
 
+//*******************************************
+//  Function to sell blocks of seats at once
+//*******************************************
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
 	cout << setw(7) << " " << "One patron's information will be used for every seat in a group sale.\n";
 
+    // Initialize temporary variables used in function outside of input loop
+    // because they are used both inside and outside of it
+    string nameTemp = "";
+    string phoneNum = "";
+    bool flag = true;
 	int row = -1, colstart = -1, colend = -1, tempcol = -1;
-	char choice = 'M', tempFirst[FNAME_SIZE], tempLast[LNAME_SIZE], tempNum[DIGITS], tempID[ID_SIZE];
+	char choice = 'M';
 	bool fail = false;
 
 	do
 	{
+	    // Ensure data will not pass error checking without user input.
 	    row = -1, colstart = -1, colend = -1;
 		fail = false;
+
+		// Get user input and then change to proper element numbers with 10-row and col-1
 		getNumbers(row, "Enter the row for the first seat the patron is buying.\n", 1, 10);
 		row = 10 - row;
-		getNumbers(colstart, "Enter the column for the first seat that the patron is buying.\n", 1, 16);
+		getNumbers(colstart, "Enter the seat number(column) for the first seat that the patron is buying.\n", 1, 16);
 		colstart = colstart - 1;
-		getNumbers(colend, "Enter the column for the last seat that the patron is buying.\n", 1, 16);
+		getNumbers(colend, "Enter the seat number(column) for the last seat that the patron is buying.\n", 1, 16);
 		colend = colend - 1;
+
+		// To avoid having lots of extra code for selling seats in reverse
+		// I just compare the "start" to the "end" and ensure they are
+		// the lower and higher values by swapping them if needed.
 		if (colstart>colend)
 		{
 			tempcol = colend;
 			colend = colstart;
 			colstart = tempcol;
 		}
+
+		// Loop to check if any of the seats in the chosen range are taken.
 		for (int i = colstart; i<=colend; i++)
 		{
 			if (seats[row][i].sold == true)
@@ -283,8 +326,12 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 				cout << setw(7) << " " << "One or more of those seats is taken.\n" << setw(7) << " " << "Please make another selection.\n";
 			}
 		}
+
+		// If statement to check if the seats cross the aisle, because some
+		// patrons might be upset if they are not seated close to one another
 		if (fail == false && (colstart < 8 && colend > 7))
 		{
+		    // Clear buffers
 			cin.clear();
 			fflush(stdin);
 
@@ -299,8 +346,10 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
                 cin >> userInput;
                 flag = validate_Y_input(userInput);
             }
+            // Assign choice to the user input once it is validated.
             choice = userInput[0];
 
+            // If else statement to decide if seats are sold are not.
 			if (choice == 'y' || choice == 'Y')
 				break;
 			else
@@ -308,12 +357,42 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 		}
 	} while (fail == true);
 
-	cout << "Enter patron's first name\n";
-	cin >> tempFirst;
-	cout << "Enter patron's last name\n";
-	cin >> tempLast;
-	cout << "Enter patron's phone number in format nnnnnnnnnn\n";
-	cin >> tempNum;
+
+
+    // First name and last name must be entered into string before
+    // Batch processing to generate the ID
+
+    // prompt for and validate first name
+	while (flag) {
+        cout << setw(7) << " " << "Enter first name: ";
+        cin >> nameTemp;
+        flag = validateName(nameTemp);
+	}
+	// copy contents of name to patron array stuct member firstName
+	copyTempToFirstName(nameTemp, currPatronInfo, row, colstart);
+
+	// prompt for and validate last name
+	flag = true;
+	nameTemp = "";
+	cin.clear();
+	while (flag) {
+        cout << setw(7) << "  " << "Enter last name: ";
+        cin >> nameTemp;
+        flag = validateName(nameTemp);
+	}
+	copyTempToLastName(nameTemp, currPatronInfo, row, colstart);
+
+	cin.ignore();
+	flag = true;
+	// validate phone number
+	while (flag) {
+        cout << setw(7) << " " << "Phone # in format nnnnnnnnnn\n\n";
+        cin >> phoneNum;
+        flag = validatePhoneNum(phoneNum);
+	}
+	copyTempToPhoneNum(phoneNum, currPatronInfo, row, colstart);
+
+
 
     // generate ID for patron
 	generateID(row, colstart, seats, currPatronInfo);
@@ -327,9 +406,9 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 	{
 	    strcpy(currPatronInfo[row][i].id, currPatronInfo[row][colstart].id);
 	    strcpy(seats[row][i].IDS, seats[row][colstart].IDS);
-		strcpy(currPatronInfo[row][i].firstName, tempFirst);
-		strcpy(currPatronInfo[row][i].lastName, tempLast);
-		strcpy(currPatronInfo[row][i].phoneNum, tempNum);
+		strcpy(currPatronInfo[row][i].firstName, currPatronInfo[row][colstart].firstName);
+		strcpy(currPatronInfo[row][i].lastName, currPatronInfo[row][colstart].phoneNum);
+		strcpy(currPatronInfo[row][i].phoneNum, currPatronInfo[row][colstart].phoneNum);
 		seats[row][i].sold = true;
 	}
 }
@@ -532,6 +611,7 @@ void showMenu()
 }
 
 
+
 void errorCheckin(char choice)
 {
 	while (choice <'A' || choice>'F'&choice<'a' || choice>'f')
@@ -594,11 +674,14 @@ void credit()
 
 
 //-----------------------------------Nick's code below-----------------------------------
-//*********************************************************
-//    Definition of Function saveSeatFile                 *
-//       This function will write each struct element     *
-//       to binary file seatsInfoFile.dat                 *
-//*********************************************************
+//***********************************************************************
+//    Definition of Function saveSeatFile                               *
+//                                                                      *
+//       This function will write each struct element                   *
+//       to binary file seatsInfoFile.da                               *
+//       Parameters: seats array of type SeatInfo (passed by reference) *
+//                   seatFile of type fstream (passed by reference)     *
+//***********************************************************************
 
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream & seatFile) {
 	string fileName = "seatsInfoFile.dat";
@@ -690,10 +773,13 @@ void getPatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream& patronFile) {
 
 //**********************************************************
 //     Definition of Function emptySeatInfo                *
+//                                                         *
 //        This function will reset the information of the  *
 //        seats array and curPatronInfo array. This Func-  *
 //        tion will also call the resetCharArray to assign *
 //        x to each element in a char array.               *
+//        Parameters: seats array (by reference)           *
+//                    currPatronInfo array (by reference)  *
 //**********************************************************
 
 void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]) {
@@ -705,10 +791,10 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 			seats[i][j].sold = 0;
 			resetCharArray(seats[i][j].IDS, ID_SIZE);
 			// reset info in patrons array
-			resetCharArray(currPatronInfo[i][j].id, ID_SIZE);
-			resetCharArray(currPatronInfo[i][j].firstName, FNAME_SIZE);
-			resetCharArray(currPatronInfo[i][j].lastName, LNAME_SIZE);
-			resetCharArray(currPatronInfo[i][j].phoneNum, DIGITS);
+			resetCharArray(currPatronInfo[i][j].id, (ID_SIZE - 1));
+			resetCharArray(currPatronInfo[i][j].firstName, (FNAME_SIZE - 1));
+			resetCharArray(currPatronInfo[i][j].lastName, (LNAME_SIZE- 1));
+			resetCharArray(currPatronInfo[i][j].phoneNum, (DIGITS - 1));
 		}
 	}
 }
@@ -778,13 +864,17 @@ bool validateName(string name) {
 			throw errorTooLong;
 	}
 	catch (string errorNotLetter) {
+	    SetColor(12);
 		cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
 		cout << setw(7) << " " << errorNotLetter;
+		SetColor(13);
 		return flag;
 	}
 	catch (string errorTooLong) {
+	    SetColor(12);
 	    cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
 		cout << setw(7) << " " << errorTooLong;
+		SetColor(13);
 		return flag;
 	}
 	return flag = false;
@@ -814,7 +904,7 @@ void copyTempToFirstName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int
 //************************************************************
 
 void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
-
+    // copy each element value from temp string to lastname meber function
     for (int i = 0; i < FNAME_SIZE - 1; i++) {
         currPatronInfo[row][col].lastName[i] = temp[i];
     }
@@ -826,6 +916,7 @@ void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int 
 //      This function will validate whether the   *
 //      user entered a correct menu option, if not*
 //      the function will return true             *
+//      Parameters: input of type string          *
 //*************************************************
 
 bool menuChoiceValidate(string input) {
@@ -846,8 +937,10 @@ bool menuChoiceValidate(string input) {
 	}
 	catch (bool error) {
 	    cout << "\n\n";
+	    SetColor(12);
 	    cout << setw(7) << " " << "ERROR: Invalid Input." << endl;
 	    cout << setw(7) << " " << "Choice must be a letter A - F" << endl;
+	    SetColor(13);
 	    return flag = true;
 	}
 
@@ -882,13 +975,17 @@ bool validatePhoneNum(string input) {
         }
     }
     catch (string errorMsgTooLong) {
+        SetColor(12);
         cout << setw(7) << "Error: Invalid Input." << endl;
         cout << setw(7) << errorMsgTooLong << endl;
+        SetColor(13);
         return flag;
     }
     catch (string errorMsgNotDigits) {
+        SetColor(12);
         cout << setw(7) << "Error: Invalid Input." << endl;
         cout << setw(7) << errorMsgNotDigits << endl;
+        SetColor(13);
         return flag;
     }
     // no errors
@@ -905,7 +1002,8 @@ bool validatePhoneNum(string input) {
 //************************************************************
 
 bool copyTempToPhoneNum(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
-
+    // assign each element value in temp string to phoneNum char array in
+    // requested patron array element
     for (int i = 0; i < DIGITS - 1; i++) {
         currPatronInfo[row][col].phoneNum[i] = temp[i];
     }
@@ -932,7 +1030,9 @@ bool validate_Y_input(string input) {
             throw errorMsg;
     }
     catch (string errorMsg) {
+        SetColor(12);
         cout << setw(7) << " " << errorMsg << endl;
+        SetColor(13);
         return flag;
     }
     return flag = false;
@@ -1013,3 +1113,4 @@ void showPatronInfo(char tempID[], PatronInfo currPatronInfo[ROWS][COLS]) {
 		}
 	}
 }
+
