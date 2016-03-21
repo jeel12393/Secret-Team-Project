@@ -56,6 +56,8 @@ void copyTempToFirstName(string, PatronInfo currPatronInfo[ROWS][COLS], int, int
 void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col);
 bool menuChoiceValidate(string input);
 bool validate_Y_input(string input);
+bool validatePhoneNum(string input);
+bool copyTempToPhoneNum(string, PatronInfo currPatronInfo[ROWS][COLS], int, int);
 
 // Reign's
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
@@ -205,9 +207,16 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	copyTempToLastName(nameTemp, currPatronInfo, row, column);
 
 	cin.ignore();
-	cout << "Phone # in format nnnnnnnnnn\n\n";
+	cin.ignore();
+	flag = true;
 	// validate phone number
-	cin.getline(currPatronInfo[row][column].phoneNum, DIGITS);
+	while (flag) {
+        cout << setw(7) << " " << "Phone # in format nnnnnnnnnn\n\n";
+        cin >> phoneNum;
+        flag = validatePhoneNum(phoneNum);
+	}
+	copyTempToPhoneNum(phoneNum, currPatronInfo, row, column);
+	
 	seatstemp[row][column].sold = true;
 	// generate ID for patron
 	generateID(row, column, seatstemp, currPatronInfo);
@@ -808,6 +817,63 @@ bool menuChoiceValidate(string input) {
 	}
 
 	return flag;
+}
+
+//************************************************************
+//      Definition of function validatePhoneNum              *
+//                                                           *
+//        This function will validate the phone number       *
+//        entered by the user by determining if the phone    *
+//        number is greater than 10 characters long or if    *
+//        the number contains a characters that is not a     *
+//        digit.                                             *
+//        Parameters: input of type string                   *
+//************************************************************
+
+bool validatePhoneNum(string input) {
+    // variables
+    bool flag = true;
+    string errorMsgTooLong = "Phone number can only be 10 digits long.";
+    string errorMsgNotDigits = "Phone number must only contain numbers.";
+
+    try {
+        // determine if user entered a number longer than 10 numbers
+        if (input.length() > 10)
+            throw errorMsgTooLong;
+        // determine if user a non-digit character
+        for(int i = 0; i < input.length(); i++) {
+            if ( !(isdigit(input[i])) )
+                throw errorMsgNotDigits;
+        }
+    }
+    catch (string errorMsgTooLong) {
+        cout << setw(7) << "Error: Invalid Input." << endl;
+        cout << setw(7) << errorMsgTooLong << endl;
+        return flag;
+    }
+    catch (string errorMsgNotDigits) {
+        cout << setw(7) << "Error: Invalid Input." << endl;
+        cout << setw(7) << errorMsgNotDigits << endl;
+        return flag;
+    }
+    // no errors
+    return flag = false;
+}
+
+//************************************************************
+//     Definition of copyTempToPhoneNum                      *
+//                                                           *
+//       This function is used with the validatePhoneNum     *
+//       function. It 'copies' the contents of the string    *
+//       phone number into the char array of the struct array*
+//       member function dot phoneNum                        *
+//************************************************************
+
+bool copyTempToPhoneNum(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
+
+    for (int i = 0; i < DIGITS - 1; i++) {
+        currPatronInfo[row][col].phoneNum[i] = temp[i];
+    }
 }
 
 //************************************************************
