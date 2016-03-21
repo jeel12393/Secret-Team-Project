@@ -33,7 +33,7 @@ struct PatronInfo { // Nick
 };
 
 // Function Prototypes
-// Jeel's
+// Jeel's functions
 void showMenu();
 void errorCheckin(char);
 void showSeatingchar();
@@ -41,7 +41,7 @@ void SetColor(int);
 void seatAndRevenu(SeatInfo seats[ROWS][COLS]);
 void credit();
 
-// Nick's
+// Nick's functions
 void saveSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void getSeatInfo(SeatInfo seats[ROWS][COLS], fstream &);
 void savePatronInfo(PatronInfo currPatronInfo[ROWS][COLS], fstream &);
@@ -60,7 +60,7 @@ bool validate_Y_input(string input);
 bool validatePhoneNum(string input);
 bool copyTempToPhoneNum(string, PatronInfo currPatronInfo[ROWS][COLS], int, int);
 
-// Reign's
+// Reign's functions
 void initSeat(SeatInfo tempseats[ROWS][COLS]);
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]);
 void getNumbers(int &thedata, string message, int lowerbound, int upperbound);
@@ -71,6 +71,7 @@ void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS
 
 static char SChart[ROWS][COLS];
 
+//-----------------------------------Reign's Code Below-----------------------------------
 int main()
 {
 	// file objects
@@ -373,9 +374,71 @@ void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS
     }
 }
 
+/*
+function to get user choice at main menu
+*/
+void menuChoice(char &choice)
+{
+    string userInput = "";
+    bool flag = true;
 
-//jeel's code
+	cin.clear();
+	fflush(stdin);
+	// prompt for menu choice
+	while (flag) {
+        cout << "\n\n";
+        cout << setw(7) << " " << "Enter an option A - H: ";
+        cin >> userInput;
+        flag = menuChoiceValidate(userInput);
+	}
+	choice = userInput[0]; // assign choice to first index of userInput
 
+	// if user chose choice H
+	if (choice == 'h' || choice == 'H')
+	{
+		cin.clear();
+		fflush(stdin);
+		// reset variables for validating
+		userInput = "";
+		flag = true;
+		while (flag){
+           cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
+           cin.ignore();
+           cin >> userInput;
+           flag = validate_Y_input(userInput);
+		}
+		choice = userInput[0];
+		if (choice == 'y' || choice == 'Y')
+			choice = 'H';
+		else
+			choice = 'X';
+	}
+	// if user chose choice F
+	if (choice == 'f' || choice == 'F')
+	{
+		cin.clear();
+		fflush(stdin);
+		// reset variables for validating
+		userInput = "";
+		flag = true;
+		while (flag){
+           cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter y or Y if you are sure.";
+           cin.ignore();
+           cin >> userInput;
+           flag = validate_Y_input(userInput);
+		}
+		choice = userInput[0];
+
+		if (choice == 'y' || choice == 'Y')
+			choice = 'F';
+		else
+			choice = 'X';
+	}
+}
+//-----------------------------------Reign's code above-----------------------------------
+
+
+//-----------------------------------Jeel's code below-----------------------------------
 void showSeatingchar()
 {
 	const char TAKEN = 'X';//seats taken
@@ -456,68 +519,6 @@ void SetColor(int value){
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), value);
 }
 
-/*
-function to get user choice at main menu
-*/
-void menuChoice(char &choice)
-{
-    string userInput = "";
-    bool flag = true;
-
-	cin.clear();
-	fflush(stdin);
-	// prompt for menu choice
-	while (flag) {
-        cout << "\n\n";
-        cout << setw(7) << " " << "Enter an option A - H: ";
-        cin >> userInput;
-        flag = menuChoiceValidate(userInput);
-	}
-	choice = userInput[0]; // assign choice to first index of userInput
-
-	// if user chose choice H
-	if (choice == 'h' || choice == 'H')
-	{
-		cin.clear();
-		fflush(stdin);
-		// reset variables for validating
-		userInput = "";
-		flag = true;
-		while (flag){
-           cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
-           cin.ignore();
-           cin >> userInput;
-           flag = validate_Y_input(userInput);
-		}
-		choice = userInput[0];
-		if (choice == 'y' || choice == 'Y')
-			choice = 'H';
-		else
-			choice = 'X';
-	}
-	// if user chose choice F
-	if (choice == 'f' || choice == 'F')
-	{
-		cin.clear();
-		fflush(stdin);
-		// reset variables for validating
-		userInput = "";
-		flag = true;
-		while (flag){
-           cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter y or Y if you are sure.";
-           cin.ignore();
-           cin >> userInput;
-           flag = validate_Y_input(userInput);
-		}
-		choice = userInput[0];
-
-		if (choice == 'y' || choice == 'Y')
-			choice = 'F';
-		else
-			choice = 'X';
-	}
-}
-
 void showMenu()
 {
 	cout << " A) Sell a ticket";
@@ -571,7 +572,28 @@ void seatAndRevenu(SeatInfo seats[ROWS][COLS])
      system("PAUSE");
 }
 
+void credit()
+{
+   system("CLS");
+   SetColor(6);
+   cout<<setw(10)<<"Designed and Programmed for HUNTIGTON PLAYHOUSE by Jedi Coders"<<endl<<endl;
+   cout<<"Team Master:"<<endl;
+   cout<<"Reign Durrent"<<endl;
+   cout<<"ReignDurrent@gmail.com"<<endl<<endl;
+   cout<<"Team Members:"<<endl;
+   cout<<"Nicholas Bishop"<<endl;
+   cout<<"Nicholasbishop27@ymail.com"<<endl<<endl;
+   cout<<"Jeel Salvi"<<endl;
+   cout<<"Jeel12393@gmail.com"<<endl<<endl;
+   cout<<"Technical Support:"<<endl;
+   cout<<"(361)742-6400"<<endl<<endl;
+   cout<<"Technical Support Hours: 24/7"<<endl<<endl;
+   system("PAUSE");
+}
+//-----------------------------------Jeel's code above-----------------------------------
 
+
+//-----------------------------------Nick's code below-----------------------------------
 //*********************************************************
 //    Definition of Function saveSeatFile                 *
 //       This function will write each struct element     *
@@ -991,23 +1013,3 @@ void showPatronInfo(char tempID[], PatronInfo currPatronInfo[ROWS][COLS]) {
 		}
 	}
 }
-
-void credit()
-{
-   system("CLS");
-   SetColor(6);
-   cout<<setw(10)<<"Designed and Programmed for HUNTIGTON PLAYHOUSE by Jedi Coders"<<endl<<endl;
-   cout<<"Team Master:"<<endl;
-   cout<<"Reign Durrent"<<endl;
-   cout<<"ReignDurrent@gmail.com"<<endl<<endl;
-   cout<<"Team Members:"<<endl;
-   cout<<"Nicholas Bishop"<<endl;
-   cout<<"Nicholasbishop27@ymail.com"<<endl<<endl;
-   cout<<"Jeel Salvi"<<endl;
-   cout<<"Jeel12393@gmail.com"<<endl<<endl;
-   cout<<"Technical Support:"<<endl;
-   cout<<"(361)742-6400"<<endl<<endl;
-   cout<<"Technical Support Hours: 24/7"<<endl<<endl;
-   system("PAUSE");
-}
-
