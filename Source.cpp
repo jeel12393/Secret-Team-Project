@@ -179,6 +179,7 @@ function to sell a single seat to the user
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
     string nameTemp = "";
+    string phoneNum = "";
     bool flag = true;
 
 	int row = -1, column = -1;
