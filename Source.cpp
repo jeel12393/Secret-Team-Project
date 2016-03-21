@@ -20,6 +20,9 @@ const int ID_SIZE = 7, FNAME_SIZE = 26, LNAME_SIZE = 26, DIGITS = 11,
 ROWS = 10, COLS = 16;
 
 
+static char SChart[ROWS][COLS]; // Static global used for printing the seating chart
+
+
 // Structures are self explanatory in their contents via variable names.
 struct SeatInfo // Reign
 {
@@ -64,15 +67,14 @@ bool validatePhoneNum(string input);
 bool copyTempToPhoneNum(string, PatronInfo currPatronInfo[ROWS][COLS], int, int);
 
 // Reign's functions
-void initSeat(SeatInfo tempseats[ROWS][COLS]); // Used to initialize a seats structure with base as well as blank data
+void initSeat(SeatInfo seats[ROWS][COLS]); // Used to initialize a seats structure with base(row, column, price) as well as blank data
 void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Sell a single seat to the user
-void getNumbers(int &thedata, string message, int lowerbound, int upperbound); // Get numbers between lowerbound and upperbound for entering row and columns for seat selling
+void getNumbers(int &thedata, string message, int upperbound); // Get numbers below a certain value, good for getting seat rows and columns
 void menuChoice(char &choice); // Used to get user input for the menu
 void updateSeatChart(SeatInfo seats[ROWS][COLS]); // Updates the SChart static global used for displaying the seating chart
 void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Sells a portion of a row of seats to the user
-void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Refunds a single seat to the user. Group refunds weren't included as refunds are to be avoided in the first place.
-
-static char SChart[ROWS][COLS]; // Static global used for printing the seating chart
+void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]); // Refunds a single seat to the user.
+bool soldCheck(int row, int col, SeatInfo seats[ROWS][COLS]); // Aborts refund/search action if the seat is not already sold.
 
 //-----------------------------------Reign's Code Below-----------------------------------
 int main()
@@ -87,15 +89,9 @@ int main()
 
 	char choice = NULL;
 
-    // Function calls to initialize structures with prices, row & column numbers, and blank fields for other data.
+    // Function calls to initialize seats structures with prices, row & column numbers, and blank fields for other data.
 	initSeat(seats);
 	emptySeatInfo(seats, currPatronInfo);
-	cout << currPatronInfo[0][0].id << endl;
-	cout << currPatronInfo[0][0].firstName << endl;
-	cout << currPatronInfo[0][0].lastName << endl;
-	cout << currPatronInfo[0][0].phoneNum << endl;
-	system("pause");
-
 
 	// read files for data
 	// load data into seats and patron array
@@ -161,22 +157,20 @@ int main()
 //  We use 10 - row (or in this case 10 - count) to decide which array     *
 //  element is manipulated.                                                *
 //**************************************************************************
-void initSeat(SeatInfo tempseats[10][16])
+void initSeat(SeatInfo seats[ROWS][COLS])
 {
 	for (int count = 0; count<ROWS; count++)
 	{
 		for (int i = 0; i<COLS; i++)
 		{
 			if (count <= 1)
-				tempseats[count][i].price = 25;
+				seats[count][i].price = 25;
 			if (count >= 2 && count <= 5)
-				tempseats[count][i].price = 35;
+				seats[count][i].price = 35;
 			if (count >= 6)
-				tempseats[count][i].price = 50;
-			tempseats[count][i].col = i + 1;
-			tempseats[count][i].row = 10 - count;
-			tempseats[count][i].sold = false;
-			resetCharArray(tempseats[count][i].IDS, ID_SIZE);
+				seats[count][i].price = 50;
+			seats[count][i].col = i + 1;
+			seats[count][i].row = 10 - count;
 		}
 	}
 }
@@ -188,12 +182,12 @@ void initSeat(SeatInfo tempseats[10][16])
 //  input data for row and column numbers. Also passes a message to be       *
 //  repeated if data input is not good.                                      *
 //****************************************************************************
-void getNumbers(int &thedata, string message, int lowerbound, int upperbound)
+void getNumbers(int &thedata, string message, int upperbound)
 {
 	cin.clear();
 	fflush(stdin);
 	char test[999];
-	while (thedata>upperbound || thedata<lowerbound)
+	while (thedata>upperbound)
 	{
 		cout << setw(7) << " " << message << setw(7) << " ";
 		cin.getline(test, INT_MAX);
@@ -212,9 +206,17 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
     string phoneNum = "";
     bool flag = true;
 
-	int row = -1, column = -1;
-	getNumbers(row, "Enter the row for the seat the patron is buying.\n\n", 1, 10);
-	getNumbers(column, "Enter the column for the seat that the patron is buying.\n\n", 1, 16);
+	int row = 50, column = 50;
+	cout << "       Enter a 0 or negative number to go back to the main menu.\n";
+	getNumbers(row, "Enter the row for the seat the patron is buying.\n", 10);
+
+	//Logic to break the input+validation loop if the user decides he does not wish to continue with action
+	if(row<1)
+        return;
+
+	getNumbers(column, "Enter the column for the seat that the patron is buying.\n", 16);
+	if(column<1)
+        return;
 	column = column - 1;
 	row = 10 - row;
 	// prompt for and validate first name
@@ -241,7 +243,7 @@ void sellSeat(SeatInfo seatstemp[ROWS][COLS], PatronInfo currPatronInfo[ROWS][CO
 	flag = true;
 	// validate phone number
 	while (flag) {
-        cout << setw(7) << " " << "Phone # in format nnnnnnnnnn\n\n";
+        cout << setw(7) << " " << "Phone # in format nnnnnnnnnn\n       ";
         cin >> phoneNum;
         flag = validatePhoneNum(phoneNum);
 	}
@@ -289,22 +291,30 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
     string nameTemp = "";
     string phoneNum = "";
     bool flag = true;
-	int row = -1, colstart = -1, colend = -1, tempcol = -1;
+	int row = 50, colstart = 50, colend = 50, tempcol = 50;
 	char choice = 'M';
 	bool fail = false;
 
 	do
 	{
-	    // Ensure data will not pass error checking without user input.
-	    row = -1, colstart = -1, colend = -1;
+	    // Ensure data will not pass error checking without new user input.
+	    // EG if a good row is entered on first pass, but a bad colstart or colend
+	    // is entered, a new request will be made for each value.
+	    row = 50, colstart = 50, colend = 50;
 		fail = false;
 
 		// Get user input and then change to proper element numbers with 10-row and col-1
-		getNumbers(row, "Enter the row for the first seat the patron is buying.\n", 1, 10);
+		getNumbers(row, "Enter the row for the first seat the patron is buying.\n", 10);
+        if(row<1)
+            return;
 		row = 10 - row;
-		getNumbers(colstart, "Enter the seat number(column) for the first seat that the patron is buying.\n", 1, 16);
+		getNumbers(colstart, "Enter the seat number(column) for the first seat.\n", 16);
+        if(colstart<1)
+            return;
 		colstart = colstart - 1;
-		getNumbers(colend, "Enter the seat number(column) for the last seat that the patron is buying.\n", 1, 16);
+		getNumbers(colend, "Enter the seat number(column) for the last seat.\n", 16);
+        if(colend<1)
+            return;
 		colend = colend - 1;
 
 		// To avoid having lots of extra code for selling seats in reverse
@@ -402,6 +412,7 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 	cout << seats[row][colstart].IDS << endl;
 	system("pause");
 
+    // Copy patron's information to all sold seats.
 	for (int i = colstart; i<=colend; i++)
 	{
 	    strcpy(currPatronInfo[row][i].id, currPatronInfo[row][colstart].id);
@@ -413,29 +424,43 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 	}
 }
 
+//*******************************
+//  Function to refund a seat   *
+//*******************************
+
 void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS])
 {
-	int row = -1, col = -1;
+	int row = 50, col = 50;
 	char choice = 'M';
-//	string tempID="";
+	char tempID[ID_SIZE];
 
-	getNumbers(row, "Enter the row for the seat the patron wants to refund.\n\n", 1, 10);
-	getNumbers(col, "Enter the seat number(column) for the seat the patron wants to refund.\n\n", 1, 16);
+    // Usual get data and return if negative or 0 control structure
+	getNumbers(row, "Enter the row for the seat the patron wants to refund.\n", 10);
+    if(row<1)
+        return;
+	getNumbers(col, "Enter the seat number(column) for the seat.\n", 16);
+    if(col<1)
+        return;
 	col = col - 1;
 	row = 10 - row;
-//	tempID=currPatronInfo[row][col].id;
-//    showPatronInfo(tempID, currPatronInfo)
-	cout << endl << currPatronInfo[row][col].id;
-	cout << endl << currPatronInfo[row][col].firstName;
-	cout << endl << currPatronInfo[row][col].lastName;
-	cout << endl << currPatronInfo[row][col].phoneNum;
-	cout << endl << "All of this info will be deleted\nThis cannot be undone.\nEnter Y or y to confirm deletion.";
+
+	// Check if the seat is actually sold or not.
+	if(!soldCheck(row, col, seats))
+	{
+	    cout << "\n       This seat has not been sold.\n\n";
+	    system("pause");
+        return;
+    }
+    strncpy(tempID, seats[row][col].IDS, ID_SIZE - 1);
+    showPatronInfo(tempID, currPatronInfo);
+
+	cout << endl << "       All of this info will be deleted\n\n       This cannot be undone."
+    << "\n\n       Enter Y or y to confirm deletion.\n\n       Enter any other character to cancel deletion: ";
     string userInput = "";
     bool flag = true;
             // validate user input
     while (flag)
     {
-        cin.ignore();
         cin >> userInput;
         flag = validate_Y_input(userInput);
     }
@@ -443,19 +468,18 @@ void refundSeat(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS
 
     if (choice == 'y' || choice == 'Y')
     {
-        // make this stuff down here a function?
         resetCharArray(currPatronInfo[row][col].id, ID_SIZE);
         resetCharArray(currPatronInfo[row][col].lastName, FNAME_SIZE);
         resetCharArray(currPatronInfo[row][col].firstName, LNAME_SIZE);
         resetCharArray(currPatronInfo[row][col].phoneNum, DIGITS);
         resetCharArray(seats[row][col].IDS, ID_SIZE);
-        seats[row][col].sold= false;
+        seats[row][col].sold=false;
     }
 }
 
-/*
-function to get user choice at main menu
-*/
+//***********************************************
+//  function to get user choice at main menu    *
+//***********************************************
 void menuChoice(char &choice)
 {
     string userInput = "";
@@ -470,7 +494,12 @@ void menuChoice(char &choice)
         cin >> userInput;
         flag = menuChoiceValidate(userInput);
 	}
-	choice = userInput[0]; // assign choice to first index of userInput
+	// Assign choice to chosen value once validated
+	choice = userInput[0];
+
+    // Most user choices will return to main() to call functions based on input
+    // User choice H and F will stay in this block to confirm input
+    // Since these are actions that do not want to be accidentally activated
 
 	// if user chose choice H
 	if (choice == 'h' || choice == 'H')
@@ -481,11 +510,15 @@ void menuChoice(char &choice)
 		userInput = "";
 		flag = true;
 		while (flag){
-           cout << "Are you sure that you want to exit the program?\nIf you are sure enter y or Y\n";
-           cin.ignore();
+           cout << "\n       Are you sure that you want to exit the program?\n\n       "
+           << "If you are sure enter Y or y.\n\n       Enter any other letter to go back to the main menu: ";
            cin >> userInput;
            flag = validate_Y_input(userInput);
 		}
+
+		// Assign choice to user input once validated to be a character
+		// Returning the same letter, in this case H, confirms the action
+		// Returning an X aborts action and returns to main() for new input
 		choice = userInput[0];
 		if (choice == 'y' || choice == 'Y')
 			choice = 'H';
@@ -501,10 +534,10 @@ void menuChoice(char &choice)
 		userInput = "";
 		flag = true;
 		while (flag){
-           cout << "Are you sure you want to delete all ticket and patron information?\nThis cannot be undone.\nEnter y or Y if you are sure.";
-           cin.ignore();
-           cin >> userInput;
-           flag = validate_Y_input(userInput);
+            cout << "\n       Are you sure you want to delete all ticket and patron information?\n\n       This cannot be undone.\n\n"
+            << "       Enter Y or y if you are sure\n\n       Enter any other letter to cancel deletion: ";
+            cin >> userInput;
+            flag = validate_Y_input(userInput);
 		}
 		choice = userInput[0];
 
@@ -513,6 +546,19 @@ void menuChoice(char &choice)
 		else
 			choice = 'X';
 	}
+}
+
+//***************************************************
+//  Checks if the seat has been sold.               *
+//  Returns false if it has not been sold.          *
+//  Returns true if it has been sold.               *
+//***************************************************
+bool soldCheck(int row, int col, SeatInfo seats[ROWS][COLS])
+{
+    if(seats[row][col].sold==false)
+        return false;
+    if(seats[row][col].sold==true)
+        return true;
 }
 //-----------------------------------Reign's code above-----------------------------------
 
@@ -788,7 +834,7 @@ void emptySeatInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][C
 			// empty XO char array
 			SChart[i][j] = 'O';
 			// reset info in seats array
-			seats[i][j].sold = 0;
+			seats[i][j].sold = false;
 			resetCharArray(seats[i][j].IDS, ID_SIZE);
 			// reset info in patrons array
 			resetCharArray(currPatronInfo[i][j].id, (ID_SIZE - 1));
@@ -1067,12 +1113,12 @@ void searchPatronInfo(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS
 	col = col - 1;
 
 	// search seats arrray for id by using row and col numbers
-	cout << seats[row][col].IDS << endl;
-	system("pause");
-	// determine if id is not xxxxxx
-	if (strcmp(seats[row][col].IDS, emptyID) == 0) {
-		cout << setw(7) << " " << "Seat is currently empty. No patron information." << endl;
-	}
+    if(!soldCheck(row, col, seats))
+	{
+	    cout << "\n       This seat has not been sold.\n\n";
+	    system("pause");
+        return;
+    }
 	// if not empty call showPatronInfo function
 	else {
 		strncpy(tempID, seats[row][col].IDS, ID_SIZE - 1);
