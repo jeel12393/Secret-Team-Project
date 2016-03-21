@@ -735,7 +735,9 @@ void generateID(int row, int col, SeatInfo seats[ROWS][COLS], PatronInfo currPat
 //************************************************************
 //      Definition of validateFName                          *
 //                                                           *
-//       This function will
+//       This function will validate whether the name entered*
+//       by the user contains letters only and is of proper  *
+//       length. If not, function will return false.         *
 //************************************************************
 
 bool validateName(string name) {
@@ -766,7 +768,11 @@ bool validateName(string name) {
 }
 
 //************************************************************
-//
+//     Definition of copyTemptoFirstName                     *
+//                                                           *
+//       This function is used with validateName, it is used *
+//       to copy the validated name to a char array in the   *
+//       PatronInfo array. specifically the First Name       *
 //************************************************************
 
 void copyTempToFirstName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
@@ -777,7 +783,11 @@ void copyTempToFirstName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int
 }
 
 //************************************************************
-//
+//     Definition of copyTemptoLastName                      *
+//                                                           *
+//       This function is used with validateName, it is used *
+//       to copy the validated name to a char array in the   *
+//       PatronInfo array. Specifically for the last name.   *
 //************************************************************
 
 void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int row, int col) {
@@ -790,7 +800,9 @@ void copyTempToLastName(string temp, PatronInfo currPatronInfo[ROWS][COLS], int 
 //*************************************************
 //    Definition of menuChoiceValidate            *
 //                                                *
-//      This function will ensures that the user
+//      This function will validate whether the   *
+//      user entered a correct menu option, if not*
+//      the function will return true             *
 //*************************************************
 
 bool menuChoiceValidate(string input) {
@@ -877,7 +889,11 @@ bool copyTempToPhoneNum(string temp, PatronInfo currPatronInfo[ROWS][COLS], int 
 }
 
 //************************************************************
-//
+//     Definition of validate_Y_input                        *
+//                                                           *
+//        this function will validate whether the user       *
+//        entered a y or Y. If input is not valid, function  *
+//        return true.                                       *
 //************************************************************
 
 bool validate_Y_input(string input) {
