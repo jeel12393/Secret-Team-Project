@@ -407,7 +407,7 @@ void sellBlock(SeatInfo seats[ROWS][COLS], PatronInfo currPatronInfo[ROWS][COLS]
 	    strcpy(currPatronInfo[row][i].id, currPatronInfo[row][colstart].id);
 	    strcpy(seats[row][i].IDS, seats[row][colstart].IDS);
 		strcpy(currPatronInfo[row][i].firstName, currPatronInfo[row][colstart].firstName);
-		strcpy(currPatronInfo[row][i].lastName, currPatronInfo[row][colstart].phoneNum);
+		strcpy(currPatronInfo[row][i].lastName, currPatronInfo[row][colstart].lastName);
 		strcpy(currPatronInfo[row][i].phoneNum, currPatronInfo[row][colstart].phoneNum);
 		seats[row][i].sold = true;
 	}
@@ -1113,4 +1113,3 @@ void showPatronInfo(char tempID[], PatronInfo currPatronInfo[ROWS][COLS]) {
 		}
 	}
 }
-
